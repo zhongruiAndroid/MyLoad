@@ -43,6 +43,9 @@ public class Loading extends Dialog {
     }
 
     private static void setLoading(Context ctx) {
+        if(ctx==null){
+            return;
+        }
         context = ctx;
         if(loadView==noLoadView){
             loading = new Loading(context, R.layout.loading_default, R.style.Theme_dialog);
@@ -58,9 +61,15 @@ public class Loading extends Dialog {
         });
     }
     public  static void showForExit(Context ctx) {
+        if(ctx==null){
+            return;
+        }
         showForExit(ctx,true);
     }
     public  static void showForExit(Context ctx,boolean exit) {
+        if(ctx==null){
+            return;
+        }
         if(loading==null||!loading.isShowing()){
             isExit=exit;
             setLoading(ctx);
@@ -76,6 +85,9 @@ public class Loading extends Dialog {
         }
     }
     public  static void show(Context ctx) {
+        if(ctx==null){
+            return;
+        }
         if(loading==null||!loading.isShowing()){
             setLoading(ctx);
         }
