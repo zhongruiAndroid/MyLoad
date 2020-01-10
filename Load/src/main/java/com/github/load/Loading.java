@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.LayoutRes;
-import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Window;
@@ -18,10 +17,15 @@ import android.view.WindowManager;
  *  进入页面加载的Dialog
  */
 public class Loading extends Dialog {
-    public static int showTag = 0;
+    private static final int TAG_SHOW=1;
+    private static final int TAG_DISMISS=0;
+    private static int showTag = TAG_DISMISS;
+
     private static Loading loading;
     private static Context context;
-    private static boolean isExit;
+
+    private static boolean isNeedFinishAct;
+
     private static int loadView=-1;
     private static final int noLoadView=-1;
 
@@ -56,7 +60,7 @@ public class Loading extends Dialog {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 loading.showTag = 0;
-                isExit = false;
+                isNeedFinishAct = false;
             }
         });
     }
@@ -66,12 +70,12 @@ public class Loading extends Dialog {
         }
         showForExit(ctx,true);
     }
-    public  static void showForExit(Context ctx,boolean exit) {
+    public  static void showForExit(Context ctx,boolean dismissAndFinishActivity) {
         if(ctx==null){
             return;
         }
         if(loading==null||!loading.isShowing()){
-            isExit=exit;
+            isNeedFinishAct =dismissAndFinishActivity;
             setLoading(ctx);
         }
         if (Loading.showTag == 0 && loading != null) {
@@ -111,8 +115,8 @@ public class Loading extends Dialog {
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(isExit&&context!=null&&loading.isShowing()){
-            isExit=false;
+        if(isNeedFinishAct &&context!=null&&loading.isShowing()){
+            isNeedFinishAct =false;
             loading.dismiss();
             if(context instanceof Activity){
                 ((Activity)context).finish();
