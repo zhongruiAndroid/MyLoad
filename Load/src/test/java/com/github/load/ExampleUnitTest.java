@@ -14,4 +14,12 @@ public class ExampleUnitTest {
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
     }
+    @Test
+    public void sf() {
+        int a=0;
+        for (int i = 0; i < 10; i++) {
+            a=a++;
+        }
+        System.out.println(a+"=======");
+    }
 }

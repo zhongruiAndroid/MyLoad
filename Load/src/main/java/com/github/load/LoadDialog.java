@@ -4,54 +4,39 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RotateDrawable;
-import android.os.Build;
 import android.support.annotation.LayoutRes;
-import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 
 /**
- *  进入页面加载的Dialog
+ * 进入页面加载的Dialog
  */
-public class Loading extends Dialog {
-    private static final int TAG_SHOW=1;
-    private static final int TAG_DISMISS=0;
+class LoadDialog extends Dialog {
+    private KeyDownListener keyDownListener;
+    private static final int TAG_SHOW = 1;
+    private static final int TAG_DISMISS = 0;
     private static int showTag = TAG_DISMISS;
 
-    private static Loading loading;
+    private static LoadDialog loading;
     private static Context context;
 
     private static boolean isNeedFinishAct;
 
-    private static int loadView=-1;
-    private static final int noLoadView=-1;
+    private static int loadView = -1;
+    private static final int noLoadView = -1;
 
     public static void setLoadView(@LayoutRes int loadView) {
-        Loading.loadView = loadView;
+        LoadDialog.loadView = loadView;
     }
 
-    public Loading(Context context, int layout, int style) {
+    public LoadDialog(Context context, View view, int style) {
         super(context, style);
-        View inflate = LayoutInflater.from(context).inflate(layout, null);
-        ProgressBar pb= inflate.findViewById(R.id.pb);
-        Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
-        if(indeterminateDrawable!=null){
-            indeterminateDrawable.mutate().setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);
-        }
-        setContentView(inflate);
+        setContentView(view);
         Window window = getWindow();
         this.setCanceledOnTouchOutside(false);
         WindowManager.LayoutParams params = window.getAttributes();
@@ -60,17 +45,35 @@ public class Loading extends Dialog {
         params.gravity = Gravity.CENTER;
         window.setBackgroundDrawable(new ColorDrawable(getContext().getResources().getColor(android.R.color.transparent)));
         window.setAttributes(params);
+
+    }
+
+
+    public KeyDownListener getKeyDownListener() {
+        if(keyDownListener==null){
+            keyDownListener=new KeyDownListener() {
+                @Override
+                public boolean onKeyDown(int keyCode, KeyEvent event) {
+                    return false;
+                }
+            };
+        }
+        return keyDownListener;
+    }
+
+    public void setKeyDownListener(KeyDownListener keyDownListener) {
+        this.keyDownListener = keyDownListener;
     }
 
     private static void setLoading(Context ctx) {
-        if(ctx==null){
+        if (ctx == null) {
             return;
         }
         context = ctx;
-        if(loadView==noLoadView){
-            loading = new Loading(context, R.layout.loading_default, R.style.Theme_dialog);
-        }else{
-            loading = new Loading(context,loadView, R.style.Theme_dialog);
+        if (loadView == noLoadView) {
+//            loading = new LoadDialog(context, R.layout.loading_default, R.style.Theme_dialog);
+        } else {
+//            loading = new LoadDialog(context, loadView, R.style.Theme_dialog);
         }
         loading.setOnDismissListener(new OnDismissListener() {
             @Override
@@ -80,62 +83,71 @@ public class Loading extends Dialog {
             }
         });
     }
-    public  static void showForExit(Context ctx) {
-        if(ctx==null){
+
+    public static void showForExit(Context ctx) {
+        if (ctx == null) {
             return;
         }
-        showForExit(ctx,true);
+        showForExit(ctx, true);
     }
-    public  static void showForExit(Context ctx,boolean dismissAndFinishActivity) {
-        if(ctx==null){
+
+    public static void showForExit(Context ctx, boolean dismissAndFinishActivity) {
+        if (ctx == null) {
             return;
         }
-        if(loading==null||!loading.isShowing()){
-            isNeedFinishAct =dismissAndFinishActivity;
+        if (loading == null || !loading.isShowing()) {
+            isNeedFinishAct = dismissAndFinishActivity;
             setLoading(ctx);
         }
-        if (Loading.showTag == 0 && loading != null) {
+        if (LoadDialog.showTag == 0 && loading != null) {
             Activity activity = (Activity) ctx;
             if (activity != null && !activity.isFinishing()) {
-                Loading.showTag = 1;
+                LoadDialog.showTag = 1;
                 loading.show();
             } else {
                 loading.showTag = 0;
             }
         }
     }
-    public  static void show(Context ctx) {
-        if(ctx==null){
+
+    public static void show(Context ctx) {
+        if (ctx == null) {
             return;
         }
-        if(loading==null||!loading.isShowing()){
+        if (loading == null || !loading.isShowing()) {
             setLoading(ctx);
         }
-        if (Loading.showTag == 0 && loading != null) {
+        if (LoadDialog.showTag == 0 && loading != null) {
             Activity activity = (Activity) ctx;
             if (activity != null && !activity.isFinishing()) {
-                Loading.showTag = 1;
+                LoadDialog.showTag = 1;
                 loading.show();
             } else {
                 loading.showTag = 0;
             }
         }
     }
+
     public static void dismissLoading() {
-        if (loading != null &&loading.isShowing()) {
+        if (loading != null && loading.isShowing()) {
             loading.showTag = 0;
             loading.dismiss();
-            loading=null;
+            loading = null;
             context = null;
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(isNeedFinishAct &&context!=null&&loading.isShowing()){
-            isNeedFinishAct =false;
+        boolean flag = getKeyDownListener().onKeyDown(keyCode, event);
+        if(flag){
+            return true;
+        }
+        if (isNeedFinishAct && context != null && loading.isShowing()) {
+            isNeedFinishAct = false;
             loading.dismiss();
-            if(context instanceof Activity){
-                ((Activity)context).finish();
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
             }
             return true;
         }
