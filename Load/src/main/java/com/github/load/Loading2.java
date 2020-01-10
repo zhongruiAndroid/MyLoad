@@ -3,10 +3,12 @@ package com.github.load;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -51,6 +53,10 @@ public class Loading2 {
         this.mContext = context;
 
         View contentView = getCurrentConfig().getLoadView();
+        if (contentView == null) {
+            int viewLayoutId = getCurrentConfig().getLoadViewId();
+            contentView = LayoutInflater.from(context).inflate(viewLayoutId, null);
+        }
         int styleId = getCurrentConfig().getLoadStyle();
 
         loadDialog = new LoadDialog(context, contentView, styleId);
@@ -79,6 +85,11 @@ public class Loading2 {
             }
         });
         setDialogWindow(context, loadDialog);
+
+
+        Loading2.get().getLoadListener().show(contentView);
+
+        loadDialog.show();
     }
 
     private void setDialogWindow(Context context, LoadDialog loadDialog) {
@@ -105,36 +116,84 @@ public class Loading2 {
     }
 
     private Loading2 setDefConfig(LoadConfig loadConfig) {
-        copyConfigAttr(loadConfig,defaultLoadConfig);
+        copyConfigAttr(loadConfig, defaultLoadConfig);
         return this;
     }
 
-    private Loading2 setLoadConfig(LoadConfig fromConfig,LoadConfig toConfig) {
-        if(toConfig==null){
-            config=new LoadConfig();
-            copyConfigAttr(defaultLoadConfig,config);
+    private Loading2 setLoadConfig(LoadConfig fromConfig) {
+        if (config == null) {
+            config = new LoadConfig();
+            copyConfigAttr(defaultLoadConfig, config);
         }
-        copyConfigAttr(fromConfig,config);
+        copyConfigAttr(fromConfig, config);
         return this;
     }
 
-    private void copyConfigAttr(LoadConfig fromConfig,LoadConfig toConfig) {
-        if(toConfig==null){
-            toConfig=new LoadConfig();
-            config=toConfig;
+    private void copyConfigAttr(LoadConfig fromConfig, LoadConfig toConfig) {
+        if (fromConfig == null || toConfig == null) {
+            return;
         }
+        View loadView = fromConfig.getLoadView();
+        int loadViewId = fromConfig.getLoadViewId();
+        int loadStyle = fromConfig.getLoadStyle();
+        boolean canceledOnTouchOutside = fromConfig.isCanceledOnTouchOutside();
         int backgroundColor = fromConfig.getBackgroundColor();
-        if(backgroundColor>0){
-            config.setBackgroundColor(backgroundColor);
+        Drawable backgroundDrawable = fromConfig.getBackgroundDrawable();
+        int windowBackground = fromConfig.getWindowBackground();
+        float backgroundDimAmount = fromConfig.getBackgroundDimAmount();
+        Drawable defaultDrawable = fromConfig.getDefaultDrawable();
+        int defaultDrawableColor = fromConfig.getDefaultDrawableColor();
+        PorterDuff.Mode defaultDrawableMode = fromConfig.getDefaultDrawableMode();
+        int defaultAnimDuration = fromConfig.getDefaultAnimDuration();
+
+
+        if (loadView != null) {
+            toConfig.setLoadView(loadView);
         }
+        if (loadViewId > 0) {
+            toConfig.setLoadViewId(loadViewId);
+        }
+        if (loadStyle > 0) {
+            toConfig.setLoadStyle(loadStyle);
+        }
+
+        toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
+
+        if (backgroundColor > 0) {
+            toConfig.setBackgroundColor(backgroundColor);
+        }
+        if (backgroundDrawable != null) {
+            toConfig.setBackgroundDrawable(backgroundDrawable);
+        }
+        if (windowBackground > 0) {
+            toConfig.setWindowBackground(windowBackground);
+        }
+        if (backgroundDimAmount > 0) {
+            toConfig.setBackgroundDimAmount(backgroundDimAmount);
+        }
+        if (defaultDrawable != null) {
+            toConfig.setDefaultDrawable(defaultDrawable);
+        }
+        if (defaultDrawableColor > 0) {
+            toConfig.setDefaultDrawableColor(defaultDrawableColor);
+        }
+        if (defaultDrawableMode != null) {
+            toConfig.setDefaultDrawableMode(defaultDrawableMode);
+        }
+        if (defaultAnimDuration > 0) {
+            toConfig.setDefaultAnimDuration(defaultAnimDuration);
+        }
+
     }
+
     /*给默认的dialog设置属性*/
     public static Loading2 setDefaultConfig(LoadConfig loadConfig) {
         return get().setDefConfig(loadConfig);
     }
+
     /*给当前show的dialog设置属性*/
     public static Loading2 setConfig(LoadConfig loadConfig) {
-        return get().setLoadConfig(loadConfig,null);
+        return get().setLoadConfig(loadConfig);
     }
 
     public static void show(Activity activity) {
@@ -144,29 +203,30 @@ public class Loading2 {
     public static void show(Activity activity, View view) {
         showForExit(activity, view, 0, false);
     }
-    public static void show(Activity activity,int styleId) {
+
+    public static void show(Activity activity, int styleId) {
         showForExit(activity, null, styleId, false);
     }
+
     public static void show(Activity activity, View view, int styleId) {
         showForExit(activity, view, styleId, false);
     }
 
     public static void showForExit(Activity activity, View view, int styleId, boolean dismissNeedFinishActivity) {
-
-        Loading2.get().preShow(activity,view,styleId,dismissNeedFinishActivity);
-        Loading2.get().getLoadListener().show(null);
+        Loading2.get().preShow(view, styleId, dismissNeedFinishActivity);
+        Loading2.get().newDialog(activity);
     }
 
-    private void preShow(Activity activity, View view, int styleId, boolean dismissNeedFinishActivity) {
-        isNeedFinishAct=dismissNeedFinishActivity;
-        if(config==null){
-            config=new LoadConfig();
-            copyConfigAttr(defaultLoadConfig,config);
+    private void preShow(View view, int styleId, boolean dismissNeedFinishActivity) {
+        isNeedFinishAct = dismissNeedFinishActivity;
+        if (config == null) {
+            config = new LoadConfig();
+            copyConfigAttr(defaultLoadConfig, config);
         }
-        if(view!=null){
+        if (view != null) {
             config.setLoadView(view);
         }
-        if(styleId>0){
+        if (styleId > 0) {
             config.setLoadStyle(styleId);
         }
 
