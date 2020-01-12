@@ -1,11 +1,11 @@
 package com.test.load;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.github.load.Loading;
+import com.github.load.Loading2;
 
 public class MainActivity extends AppCompatActivity {
     private Activity activity;
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Loading.show(activity);
+                Loading2.show(activity);
             }
         });
     }

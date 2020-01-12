@@ -38,8 +38,6 @@ public class LoadConfig {
     @ColorInt
     private int defaultDrawableColor;
     private PorterDuff.Mode defaultDrawableMode;
-    /*默认图片旋转一圈的时间(毫秒)*/
-    private int defaultAnimDuration;
 
 
     public LoadConfig() {
@@ -48,13 +46,13 @@ public class LoadConfig {
         canceledOnTouchOutside=false;
 
         defaultDrawableMode= PorterDuff.Mode.SRC_ATOP;
-        defaultAnimDuration=900;
 
 
         backgroundColor = Color.TRANSPARENT;
         windowBackground = Color.TRANSPARENT;
 
         backgroundDimAmount = 0.3f;
+        defaultDrawableColor=-1;
     }
 
     public View getLoadView() {
@@ -145,11 +143,4 @@ public class LoadConfig {
         this.defaultDrawableMode = defaultDrawableMode;
     }
 
-    public int getDefaultAnimDuration() {
-        return defaultAnimDuration;
-    }
-
-    public void setDefaultAnimDuration(int defaultAnimDuration) {
-        this.defaultAnimDuration = defaultAnimDuration;
-    }
 }

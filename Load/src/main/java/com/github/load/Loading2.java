@@ -6,12 +6,14 @@ import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.StyleRes;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 
 /**
@@ -20,9 +22,8 @@ import android.view.WindowManager;
 public class Loading2 {
     private static Loading2 singleObj;
 
-    private LoadDialog loadDialog;
+    private LoadDialog2 loadDialog;
 
-    private LoadListener loadListener;
 
     private LoadConfig config;
     private LoadConfig defaultLoadConfig;
@@ -49,7 +50,7 @@ public class Loading2 {
     }
 
 
-    private void newDialog(Context context) {
+    private LoadDialog2 newDialog(Context context,boolean showNow) {
         this.mContext = context;
 
         View contentView = getCurrentConfig().getLoadView();
@@ -57,15 +58,18 @@ public class Loading2 {
             int viewLayoutId = getCurrentConfig().getLoadViewId();
             contentView = LayoutInflater.from(context).inflate(viewLayoutId, null);
         }
+        setDefaultViewStyle(contentView);
         int styleId = getCurrentConfig().getLoadStyle();
-
-        loadDialog = new LoadDialog(context, contentView, styleId);
+        if(styleId>0){
+            loadDialog = new LoadDialog2(context, contentView, styleId);
+        }else{
+            loadDialog = new LoadDialog2(context, contentView);
+        }
         loadDialog.setCanceledOnTouchOutside(getCurrentConfig().isCanceledOnTouchOutside());
         loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 config = null;
-                getLoadListener().dismiss(dialog);
                 loadDialog = null;
                 mContext = null;
             }
@@ -84,15 +88,31 @@ public class Loading2 {
                 return false;
             }
         });
+
+        loadDialog.setContentView(contentView);
         setDialogWindow(context, loadDialog);
 
 
-        Loading2.get().getLoadListener().show(contentView);
+        if(showNow){
+            loadDialog.show();
+        }
 
-        loadDialog.show();
+        return loadDialog;
     }
 
-    private void setDialogWindow(Context context, LoadDialog loadDialog) {
+    private void setDefaultViewStyle(View view) {
+        ProgressBar pb=view.findViewById(R.id.pb);
+        Drawable defaultDrawable = getCurrentConfig().getDefaultDrawable();
+        if(defaultDrawable!=null){
+            pb.setIndeterminateDrawable(defaultDrawable);
+        }
+        if(getCurrentConfig().getDefaultDrawableColor()>0){
+            Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
+            indeterminateDrawable.mutate().setColorFilter(getCurrentConfig().getDefaultDrawableColor(),getCurrentConfig().getDefaultDrawableMode());
+        }
+    }
+
+    private void setDialogWindow(Context context, LoadDialog2 loadDialog) {
         if (loadDialog == null) {
             return;
         }
@@ -105,7 +125,7 @@ public class Loading2 {
         Drawable backgroundDrawable = currentConfig.getBackgroundDrawable();
 
         if (backgroundDrawable == null) {
-            window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(currentConfig.getBackgroundColor())));
+            window.setBackgroundDrawable(new ColorDrawable(currentConfig.getBackgroundColor()));
         } else {
             window.setBackgroundDrawable(currentConfig.getBackgroundDrawable());
         }
@@ -116,11 +136,17 @@ public class Loading2 {
     }
 
     private Loading2 setDefConfig(LoadConfig loadConfig) {
+        if(loadConfig==null){
+            return this;
+        }
         copyConfigAttr(loadConfig, defaultLoadConfig);
         return this;
     }
 
     private Loading2 setLoadConfig(LoadConfig fromConfig) {
+        if(fromConfig==null){
+            return this;
+        }
         if (config == null) {
             config = new LoadConfig();
             copyConfigAttr(defaultLoadConfig, config);
@@ -144,7 +170,6 @@ public class Loading2 {
         Drawable defaultDrawable = fromConfig.getDefaultDrawable();
         int defaultDrawableColor = fromConfig.getDefaultDrawableColor();
         PorterDuff.Mode defaultDrawableMode = fromConfig.getDefaultDrawableMode();
-        int defaultAnimDuration = fromConfig.getDefaultAnimDuration();
 
 
         if (loadView != null) {
@@ -159,13 +184,13 @@ public class Loading2 {
 
         toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
 
-        if (backgroundColor > 0) {
+        if (backgroundColor >= 0) {
             toConfig.setBackgroundColor(backgroundColor);
         }
         if (backgroundDrawable != null) {
             toConfig.setBackgroundDrawable(backgroundDrawable);
         }
-        if (windowBackground > 0) {
+        if (windowBackground >=0) {
             toConfig.setWindowBackground(windowBackground);
         }
         if (backgroundDimAmount > 0) {
@@ -180,10 +205,6 @@ public class Loading2 {
         if (defaultDrawableMode != null) {
             toConfig.setDefaultDrawableMode(defaultDrawableMode);
         }
-        if (defaultAnimDuration > 0) {
-            toConfig.setDefaultAnimDuration(defaultAnimDuration);
-        }
-
     }
 
     /*给默认的dialog设置属性*/
@@ -204,19 +225,49 @@ public class Loading2 {
         showForExit(activity, view, 0, false);
     }
 
-    public static void show(Activity activity, int styleId) {
+    public static void show(Activity activity,@StyleRes int styleId) {
         showForExit(activity, null, styleId, false);
     }
 
-    public static void show(Activity activity, View view, int styleId) {
+    public static void show(Activity activity, View view, @StyleRes int styleId) {
         showForExit(activity, view, styleId, false);
     }
 
-    public static void showForExit(Activity activity, View view, int styleId, boolean dismissNeedFinishActivity) {
-        Loading2.get().preShow(view, styleId, dismissNeedFinishActivity);
-        Loading2.get().newDialog(activity);
+    public static void showForExit(Activity activity) {
+        showForExit(activity, null, 0, true);
     }
 
+    public static void showForExit(Activity activity, View view) {
+        showForExit(activity, view, 0, true);
+    }
+
+    public static void showForExit(Activity activity, @StyleRes int styleId) {
+        showForExit(activity, null, styleId, true);
+    }
+
+    public static void showForExit(Activity activity, View view, @StyleRes int styleId, boolean dismissNeedFinishActivity) {
+        Loading2.get().preShow(view, styleId, dismissNeedFinishActivity);
+        Loading2.get().newDialog(activity,true);
+    }
+    public static void dismiss(){
+        Loading2.get().dismissDialog();
+    }
+
+    private void dismissDialog() {
+        if(loadDialog!=null&&loadDialog.isShowing()){
+            loadDialog.dismiss();
+        }
+        config=null;
+        mContext=null;
+    }
+
+    public void showDialog(Activity activity){
+        showDialog(activity,false);
+    }
+    public void showDialog(Activity activity,boolean dismissNeedFinishActivity) {
+        Loading2.get().preShow(null, 0, dismissNeedFinishActivity);
+        Loading2.get().newDialog(activity, false).show();
+    }
     private void preShow(View view, int styleId, boolean dismissNeedFinishActivity) {
         isNeedFinishAct = dismissNeedFinishActivity;
         if (config == null) {
@@ -232,22 +283,4 @@ public class Loading2 {
 
     }
 
-    public LoadListener getLoadListener() {
-        if (loadListener == null) {
-            loadListener = new LoadListener() {
-                @Override
-                public void show(View dialogView) {
-                }
-
-                @Override
-                public void dismiss(DialogInterface dialog) {
-                }
-            };
-        }
-        return loadListener;
-    }
-
-    public void setLoadListener(LoadListener loadListener) {
-        this.loadListener = loadListener;
-    }
 }

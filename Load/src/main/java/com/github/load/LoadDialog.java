@@ -34,8 +34,15 @@ class LoadDialog extends Dialog {
         LoadDialog.loadView = loadView;
     }
 
+    public LoadDialog(Context context, View view) {
+        super(context);
+        init(view);
+    }
     public LoadDialog(Context context, View view, int style) {
         super(context, style);
+        init(view);
+    }
+    private void init(View view) {
         setContentView(view);
         Window window = getWindow();
         this.setCanceledOnTouchOutside(false);
@@ -45,13 +52,12 @@ class LoadDialog extends Dialog {
         params.gravity = Gravity.CENTER;
         window.setBackgroundDrawable(new ColorDrawable(getContext().getResources().getColor(android.R.color.transparent)));
         window.setAttributes(params);
-
     }
 
 
     public KeyDownListener getKeyDownListener() {
-        if(keyDownListener==null){
-            keyDownListener=new KeyDownListener() {
+        if (keyDownListener == null) {
+            keyDownListener = new KeyDownListener() {
                 @Override
                 public boolean onKeyDown(int keyCode, KeyEvent event) {
                     return false;
@@ -140,7 +146,7 @@ class LoadDialog extends Dialog {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         boolean flag = getKeyDownListener().onKeyDown(keyCode, event);
-        if(flag){
+        if (flag) {
             return true;
         }
         if (isNeedFinishAct && context != null && loading.isShowing()) {
