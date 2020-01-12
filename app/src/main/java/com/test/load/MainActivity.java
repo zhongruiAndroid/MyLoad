@@ -1,10 +1,12 @@
 package com.test.load;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.github.load.LoadConfig;
 import com.github.load.Loading2;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,7 +21,11 @@ public class MainActivity extends AppCompatActivity {
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Loading2.show(activity);
+                LoadConfig loadConfig=new LoadConfig();
+                loadConfig.setDefaultDrawableColor(Color.RED);
+                Loading2.setDefaultConfig(loadConfig);
+
+                Loading2.showForExit(activity);
             }
         });
     }

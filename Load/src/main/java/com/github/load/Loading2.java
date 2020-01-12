@@ -79,10 +79,10 @@ public class Loading2 {
             public boolean onKeyDown(int keyCode, KeyEvent event) {
                 if (loadDialog != null && isNeedFinishAct && mContext != null && loadDialog.isShowing()) {
                     isNeedFinishAct = false;
-                    loadDialog.dismiss();
                     if (mContext instanceof Activity) {
                         ((Activity) mContext).finish();
                     }
+                    loadDialog.dismiss();
                     return true;
                 }
                 return false;
@@ -106,7 +106,7 @@ public class Loading2 {
         if(defaultDrawable!=null){
             pb.setIndeterminateDrawable(defaultDrawable);
         }
-        if(getCurrentConfig().getDefaultDrawableColor()>0){
+        if(getCurrentConfig().getDefaultDrawableColor()!=-1){
             Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
             indeterminateDrawable.mutate().setColorFilter(getCurrentConfig().getDefaultDrawableColor(),getCurrentConfig().getDefaultDrawableMode());
         }
@@ -184,22 +184,22 @@ public class Loading2 {
 
         toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
 
-        if (backgroundColor >= 0) {
+        if (backgroundColor !=-1) {
             toConfig.setBackgroundColor(backgroundColor);
         }
         if (backgroundDrawable != null) {
             toConfig.setBackgroundDrawable(backgroundDrawable);
         }
-        if (windowBackground >=0) {
+        if (windowBackground !=-1) {
             toConfig.setWindowBackground(windowBackground);
         }
-        if (backgroundDimAmount > 0) {
+        if (backgroundDimAmount >= 0) {
             toConfig.setBackgroundDimAmount(backgroundDimAmount);
         }
         if (defaultDrawable != null) {
             toConfig.setDefaultDrawable(defaultDrawable);
         }
-        if (defaultDrawableColor > 0) {
+        if (defaultDrawableColor !=-1) {
             toConfig.setDefaultDrawableColor(defaultDrawableColor);
         }
         if (defaultDrawableMode != null) {
