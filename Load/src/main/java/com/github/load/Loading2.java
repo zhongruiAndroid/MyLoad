@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.StyleRes;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -51,7 +52,7 @@ public class Loading2 {
     }
 
 
-    private LoadDialog2 newDialog(Context context,boolean showNow) {
+    private LoadDialog2 newDialog(Context context, boolean showNow) {
         this.mContext = context;
 
         View contentView = getCurrentConfig().getLoadView();
@@ -61,32 +62,24 @@ public class Loading2 {
         }
         setDefaultViewStyle(contentView);
         int styleId = getCurrentConfig().getLoadStyle();
-        if(styleId>0){
+        if (styleId > 0) {
             loadDialog = new LoadDialog2(context, contentView, styleId);
-        }else{
+        } else {
             loadDialog = new LoadDialog2(context, contentView);
         }
         loadDialog.setCanceledOnTouchOutside(getCurrentConfig().isCanceledOnTouchOutside());
         loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                config = null;
-                loadDialog = null;
-                mContext = null;
-            }
-        });
-        loadDialog.setKeyDownListener(new KeyDownListener() {
-            @Override
-            public boolean onKeyDown(int keyCode, KeyEvent event) {
-                if (loadDialog != null && isNeedFinishAct && mContext != null && loadDialog.isShowing()) {
+                if (loadDialog != null && isNeedFinishAct && mContext != null) {
                     isNeedFinishAct = false;
                     if (mContext instanceof Activity) {
                         ((Activity) mContext).finish();
                     }
-                    loadDialog.dismiss();
-                    return true;
                 }
-                return false;
+                config = null;
+                loadDialog = null;
+                mContext = null;
             }
         });
 
@@ -94,7 +87,7 @@ public class Loading2 {
         setDialogWindow(context, loadDialog);
 
 
-        if(showNow){
+        if (showNow) {
             loadDialog.show();
         }
 
@@ -102,14 +95,14 @@ public class Loading2 {
     }
 
     private void setDefaultViewStyle(View view) {
-        ProgressBar pb=view.findViewById(R.id.pb);
+        ProgressBar pb = view.findViewById(R.id.pb);
         Drawable defaultDrawable = getCurrentConfig().getDefaultDrawable();
-        if(defaultDrawable!=null){
+        if (defaultDrawable != null) {
             pb.setIndeterminateDrawable(defaultDrawable);
         }
-        if(getCurrentConfig().getDefaultDrawableColor()!=-1){
+        if (getCurrentConfig().getDefaultDrawableColor() != -1) {
             Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
-            indeterminateDrawable.mutate().setColorFilter(getCurrentConfig().getDefaultDrawableColor(),getCurrentConfig().getDefaultDrawableMode());
+            indeterminateDrawable.mutate().setColorFilter(getCurrentConfig().getDefaultDrawableColor(), getCurrentConfig().getDefaultDrawableMode());
         }
     }
 
@@ -120,27 +113,36 @@ public class Loading2 {
         LoadConfig currentConfig = getCurrentConfig();
         Window window = loadDialog.getWindow();
         WindowManager.LayoutParams params = window.getAttributes();
-        params.width =currentConfig.getViewWidth();// ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
-        params.height =currentConfig.getViewHeight();
+        params.width = currentConfig.getViewWidth();// ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
+        params.height = currentConfig.getViewHeight();
         params.gravity = Gravity.CENTER;
 
-        Drawable backgroundDrawable = currentConfig.getWindowBackgroundDrawable();
+        Drawable backgroundDrawable = currentConfig.getBackgroundDrawable();
 
         if (backgroundDrawable == null) {
-            int color= Color.TRANSPARENT;
-            if(currentConfig.getWindowBackground()!=-1){
-                color=currentConfig.getWindowBackground();
+            int color = Color.TRANSPARENT;
+            if (currentConfig.getBackgroundColor() != -1) {
+                color = currentConfig.getBackgroundColor();
             }
             window.setBackgroundDrawable(new ColorDrawable(color));
         } else {
             window.setBackgroundDrawable(backgroundDrawable);
         }
         window.setDimAmount(currentConfig.getBackgroundDimAmount());
+      /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//5.0 全透明实现
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        } else {//4.4 全透明状态栏
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }*/
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setAttributes(params);
     }
 
     private Loading2 setDefConfig(LoadConfig loadConfig) {
-        if(loadConfig==null){
+        if (loadConfig == null) {
             return this;
         }
         copyConfigAttr(loadConfig, defaultLoadConfig);
@@ -148,7 +150,7 @@ public class Loading2 {
     }
 
     private Loading2 setLoadConfig(LoadConfig fromConfig) {
-        if(fromConfig==null){
+        if (fromConfig == null) {
             return this;
         }
         if (config == null) {
@@ -170,8 +172,8 @@ public class Loading2 {
         int loadViewId = fromConfig.getLoadViewId();
         int loadStyle = fromConfig.getLoadStyle();
         boolean canceledOnTouchOutside = fromConfig.isCanceledOnTouchOutside();
-        Drawable backgroundDrawable = fromConfig.getWindowBackgroundDrawable();
-        int windowBackground = fromConfig.getWindowBackground();
+        Drawable backgroundDrawable = fromConfig.getBackgroundDrawable();
+        int windowBackground = fromConfig.getBackgroundColor();
         float backgroundDimAmount = fromConfig.getBackgroundDimAmount();
         Drawable defaultDrawable = fromConfig.getDefaultDrawable();
         int defaultDrawableColor = fromConfig.getDefaultDrawableColor();
@@ -194,18 +196,18 @@ public class Loading2 {
         toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
 
         if (backgroundDrawable != null) {
-            toConfig.setWindowBackgroundDrawable(backgroundDrawable);
+            toConfig.setBackgroundDrawable(backgroundDrawable);
         }
-        if (windowBackground !=-1) {
-            toConfig.setWindowBackground(windowBackground);
+        if (windowBackground != -1) {
+            toConfig.setBackgroundColor(windowBackground);
         }
-        if (backgroundDimAmount !=-1) {
+        if (backgroundDimAmount != -1) {
             toConfig.setBackgroundDimAmount(backgroundDimAmount);
         }
         if (defaultDrawable != null) {
             toConfig.setDefaultDrawable(defaultDrawable);
         }
-        if (defaultDrawableColor !=-1) {
+        if (defaultDrawableColor != -1) {
             toConfig.setDefaultDrawableColor(defaultDrawableColor);
         }
         if (defaultDrawableMode != null) {
@@ -217,6 +219,7 @@ public class Loading2 {
     public static Loading2 setDefaultConfig(LoadConfig loadConfig) {
         return get().setDefConfig(loadConfig);
     }
+
     public static Loading2 resetDefaultConfig() {
         return get().setDefConfig(LoadConfig.defaultConfig());
     }
@@ -234,7 +237,7 @@ public class Loading2 {
         showForExit(activity, view, 0, false);
     }
 
-    public static void show(Activity activity,@StyleRes int styleId) {
+    public static void show(Activity activity, @StyleRes int styleId) {
         showForExit(activity, null, styleId, false);
     }
 
@@ -256,27 +259,30 @@ public class Loading2 {
 
     public static void showForExit(Activity activity, View view, @StyleRes int styleId, boolean dismissNeedFinishActivity) {
         Loading2.get().preShow(view, styleId, dismissNeedFinishActivity);
-        Loading2.get().newDialog(activity,true);
+        Loading2.get().newDialog(activity, true);
     }
-    public static void dismiss(){
+
+    public static void dismiss() {
         Loading2.get().dismissDialog();
     }
 
     private void dismissDialog() {
-        if(loadDialog!=null&&loadDialog.isShowing()){
+        if (loadDialog != null && loadDialog.isShowing()) {
             loadDialog.dismiss();
         }
-        config=null;
-        mContext=null;
+        config = null;
+        mContext = null;
     }
 
-    public void showDialog(Activity activity){
-        showDialog(activity,false);
+    public void showDialog(Activity activity) {
+        showDialog(activity, false);
     }
-    public void showDialog(Activity activity,boolean dismissNeedFinishActivity) {
+
+    public void showDialog(Activity activity, boolean dismissNeedFinishActivity) {
         Loading2.get().preShow(null, 0, dismissNeedFinishActivity);
         Loading2.get().newDialog(activity, false).show();
     }
+
     private void preShow(View view, int styleId, boolean dismissNeedFinishActivity) {
         isNeedFinishAct = dismissNeedFinishActivity;
         if (config == null) {

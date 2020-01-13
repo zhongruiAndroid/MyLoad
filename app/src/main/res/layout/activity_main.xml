@@ -78,57 +78,6 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="5dp"
-                    android:text="Window默认背景颜色" />
-
-                <TextView
-                    android:id="@+id/tvLoadWindowColor"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/view_border"
-                    android:text="" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="invisible">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="5dp"
-                    android:text="load背景默认颜色" />
-
-                <TextView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/view_border"
-                    android:text="" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -140,6 +89,25 @@
                 android:layout_height="wrap_content"
                 android:max="100"
                 android:progress="30" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cbCancelOut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点击外部取消dialog" />
+
+            <CheckBox
+                android:id="@+id/cbFinishExit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dismiss退出act" />
         </LinearLayout>
 
         <RadioGroup
@@ -237,56 +205,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="5dp"
-                    android:text="Window默认背景颜色" />
-
-                <TextView
-                    android:id="@+id/tvLoadWindowColor2"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/view_border"
-                    android:text="" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="invisible">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="5dp"
-                    android:text="load背景默认颜色" />
-
-                <TextView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/view_border"
-                    android:text="" />
-            </LinearLayout>
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -306,6 +224,25 @@
                 android:layout_height="wrap_content"
                 android:max="100"
                 android:progress="30" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cbCancelOut2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点击外部取消dialog" />
+
+            <CheckBox
+                android:id="@+id/cbFinishExit2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dismiss退出act" />
         </LinearLayout>
 
         <RadioGroup
@@ -354,6 +291,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="全局默认设置" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="局部优先级高于全局" />
 
             <android.support.v7.widget.AppCompatCheckBox
                 android:id="@+id/cbAreaSet"

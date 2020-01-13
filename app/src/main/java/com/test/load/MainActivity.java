@@ -1,16 +1,15 @@
 package com.test.load;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -26,16 +25,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView tvLoadColor;
     private TextView tvLoadBgColor;
-    private TextView tvLoadWindowColor;
     private AppCompatSeekBar sbAlpha;
     private RadioGroup rgFirst;
 
 
     private TextView tvLoadColor2;
     private TextView tvLoadBgColor2;
-    private TextView tvLoadWindowColor2;
     private AppCompatSeekBar sbAlpha2;
     private RadioGroup rgFirst2;
+
+
+    private CheckBox cbCancelOut;
+    private CheckBox cbCancelOut2;
+    private CheckBox cbFinishExit;
+    private CheckBox cbFinishExit2;
 
     private CheckBox cbAllSet;
     private CheckBox cbAreaSet;
@@ -56,20 +59,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         setViewListener();
 
-        btShow = findViewById(R.id.btShow);
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Loading2.resetDefaultConfig();
+
                 if (cbAllSet.isChecked()) {
                     Loading2.setDefaultConfig(defaultConfig);
                 }
                 if (cbAreaSet.isChecked()) {
                     Loading2.setConfig(loadConfig);
                 }
-
-
-                Loading2.show(activity);
+                if(cbAreaSet.isChecked()){
+                    Loading2.showForExit(activity,null,0,cbFinishExit2.isChecked());
+                }else if(cbAllSet.isChecked()){
+                    Loading2.showForExit(activity,null,0,cbFinishExit.isChecked());
+                }else{
+                    Loading2.show(activity);
+                }
             }
         });
     }
@@ -77,15 +84,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView iv;
 
     private void initView() {
+
+        btShow = findViewById(R.id.btShow);
+        cbCancelOut = findViewById(R.id.cbCancelOut);
+        cbCancelOut2 = findViewById(R.id.cbCancelOut2);
+        cbFinishExit = findViewById(R.id.cbFinishExit);
+        cbFinishExit2 = findViewById(R.id.cbFinishExit2);
+
         iv = findViewById(R.id.iv);
         tvLoadColor = findViewById(R.id.tvLoadColor);
         tvLoadBgColor = findViewById(R.id.tvLoadBgColor);
-        tvLoadWindowColor = findViewById(R.id.tvLoadWindowColor);
         sbAlpha = findViewById(R.id.sbAlpha);
         rgFirst = findViewById(R.id.rgFirst);
         tvLoadColor2 = findViewById(R.id.tvLoadColor2);
         tvLoadBgColor2 = findViewById(R.id.tvLoadBgColor2);
-        tvLoadWindowColor2 = findViewById(R.id.tvLoadWindowColor2);
         sbAlpha2 = findViewById(R.id.sbAlpha2);
         rgFirst2 = findViewById(R.id.rgFirst2);
         cbAllSet = findViewById(R.id.cbAllSet);
@@ -121,11 +133,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sbAlpha.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                defaultConfig.setBackgroundDimAmount(progress*1f/sbAlpha.getMax());
+                defaultConfig.setBackgroundDimAmount(progress * 1f / sbAlpha.getMax());
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
@@ -133,18 +147,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sbAlpha2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                loadConfig.setBackgroundDimAmount(progress*1f/sbAlpha2.getMax());
+                loadConfig.setBackgroundDimAmount(progress * 1f / sbAlpha2.getMax());
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
 
 
-
+        cbCancelOut.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                defaultConfig.setCanceledOnTouchOutside(isChecked);
+            }
+        });
+        cbCancelOut2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loadConfig.setCanceledOnTouchOutside(isChecked);
+            }
+        });
+        cbFinishExit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                defaultConfig.setCanceledOnTouchOutside(isChecked);
+            }
+        });
+        cbFinishExit2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loadConfig.setCanceledOnTouchOutside(isChecked);
+            }
+        });
     }
 
     private RotateDrawable getRotateDrawable(boolean isFirstType) {
@@ -158,10 +197,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setViewListener() {
         tvLoadColor.setOnClickListener(this);
         tvLoadBgColor.setOnClickListener(this);
-        tvLoadWindowColor.setOnClickListener(this);
         tvLoadColor2.setOnClickListener(this);
         tvLoadBgColor2.setOnClickListener(this);
-        tvLoadWindowColor2.setOnClickListener(this);
     }
 
     @Override
@@ -172,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void selectColor(int color) {
                         defaultConfig.setDefaultDrawableColor(color);
+                        tvLoadColor.setBackgroundColor(color);
                     }
                 });
                 break;
@@ -179,15 +217,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 selectColor(new SelectColorListener() {
                     @Override
                     public void selectColor(int color) {
-//                        defaultConfig.setBackgroundColor(color);
-                    }
-                });
-                break;
-            case R.id.tvLoadWindowColor:
-                selectColor(new SelectColorListener() {
-                    @Override
-                    public void selectColor(int color) {
-                        defaultConfig.setWindowBackground(color);
+                        defaultConfig.setBackgroundColor(color);
+                        tvLoadBgColor.setBackgroundColor(color);
                     }
                 });
                 break;
@@ -196,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void selectColor(int color) {
                         loadConfig.setDefaultDrawableColor(color);
+                        tvLoadColor2.setBackgroundColor(color);
                     }
                 });
                 break;
@@ -203,15 +235,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 selectColor(new SelectColorListener() {
                     @Override
                     public void selectColor(int color) {
-//                        loadConfig.setBackgroundColor(color);
-                    }
-                });
-                break;
-            case R.id.tvLoadWindowColor2:
-                selectColor(new SelectColorListener() {
-                    @Override
-                    public void selectColor(int color) {
-                        loadConfig.setWindowBackground(color);
+                        loadConfig.setBackgroundColor(color);
+                        tvLoadBgColor2.setBackgroundColor(color);
                     }
                 });
                 break;

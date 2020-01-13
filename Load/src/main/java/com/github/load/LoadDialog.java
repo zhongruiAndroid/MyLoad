@@ -17,7 +17,6 @@ import android.view.WindowManager;
  * 进入页面加载的Dialog
  */
 class LoadDialog extends Dialog {
-    private KeyDownListener keyDownListener;
     private static final int TAG_SHOW = 1;
     private static final int TAG_DISMISS = 0;
     private static int showTag = TAG_DISMISS;
@@ -55,21 +54,7 @@ class LoadDialog extends Dialog {
     }
 
 
-    public KeyDownListener getKeyDownListener() {
-        if (keyDownListener == null) {
-            keyDownListener = new KeyDownListener() {
-                @Override
-                public boolean onKeyDown(int keyCode, KeyEvent event) {
-                    return false;
-                }
-            };
-        }
-        return keyDownListener;
-    }
 
-    public void setKeyDownListener(KeyDownListener keyDownListener) {
-        this.keyDownListener = keyDownListener;
-    }
 
     private static void setLoading(Context ctx) {
         if (ctx == null) {
@@ -141,22 +126,5 @@ class LoadDialog extends Dialog {
             loading = null;
             context = null;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        boolean flag = getKeyDownListener().onKeyDown(keyCode, event);
-        if (flag) {
-            return true;
-        }
-        if (isNeedFinishAct && context != null && loading.isShowing()) {
-            isNeedFinishAct = false;
-            loading.dismiss();
-            if (context instanceof Activity) {
-                ((Activity) context).finish();
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 }

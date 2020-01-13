@@ -22,8 +22,8 @@ public class LoadConfig {
 
     /*window背景*/
     @ColorInt
-    private int windowBackground;
-    private Drawable windowBackgroundDrawable;
+    private int backgroundColor;
+    private Drawable backgroundDrawable;
 
     /*dialog底部透明度 0.0f ~ 1f*/
     private float backgroundDimAmount;
@@ -48,7 +48,7 @@ public class LoadConfig {
         defaultDrawableMode= PorterDuff.Mode.SRC_ATOP;
 
 
-        windowBackground =-1;
+        backgroundColor =-1;
 
         backgroundDimAmount = -1f;
         defaultDrawableColor=-1;
@@ -56,7 +56,7 @@ public class LoadConfig {
     }
     public static LoadConfig defaultConfig(){
         LoadConfig loadConfig = new LoadConfig();
-        loadConfig.windowBackground=Color.TRANSPARENT;
+        loadConfig.backgroundColor =Color.TRANSPARENT;
         loadConfig.backgroundDimAmount=0.3f;
         return loadConfig;
     }
@@ -109,20 +109,20 @@ public class LoadConfig {
         this.canceledOnTouchOutside = canceledOnTouchOutside;
     }
 
-    public Drawable getWindowBackgroundDrawable() {
-        return windowBackgroundDrawable;
+    public Drawable getBackgroundDrawable() {
+        return backgroundDrawable;
     }
 
-    public void setWindowBackgroundDrawable(Drawable windowBackgroundDrawable) {
-        this.windowBackgroundDrawable = windowBackgroundDrawable;
+    public void setBackgroundDrawable(Drawable backgroundDrawable) {
+        this.backgroundDrawable = backgroundDrawable;
     }
 
-    public int getWindowBackground() {
-        return windowBackground;
+    public int getBackgroundColor() {
+        return backgroundColor;
     }
 
-    public void setWindowBackground(@ColorInt int windowBackground) {
-        this.windowBackground = windowBackground;
+    public void setBackgroundColor(@ColorInt int backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
     public float getBackgroundDimAmount() {
