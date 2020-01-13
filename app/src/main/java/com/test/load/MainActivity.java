@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Loading2.setDefaultConfig(new LoadConfig());
+                Loading2.resetDefaultConfig();
                 if (cbAllSet.isChecked()) {
                     Loading2.setDefaultConfig(defaultConfig);
                 }
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 selectColor(new SelectColorListener() {
                     @Override
                     public void selectColor(int color) {
-                        defaultConfig.setBackgroundColor(color);
+//                        defaultConfig.setBackgroundColor(color);
                     }
                 });
                 break;
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 selectColor(new SelectColorListener() {
                     @Override
                     public void selectColor(int color) {
-                        loadConfig.setBackgroundColor(color);
+//                        loadConfig.setBackgroundColor(color);
                     }
                 });
                 break;

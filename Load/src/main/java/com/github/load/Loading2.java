@@ -168,7 +168,6 @@ public class Loading2 {
         int loadViewId = fromConfig.getLoadViewId();
         int loadStyle = fromConfig.getLoadStyle();
         boolean canceledOnTouchOutside = fromConfig.isCanceledOnTouchOutside();
-        int backgroundColor = fromConfig.getBackgroundColor();
         Drawable backgroundDrawable = fromConfig.getBackgroundDrawable();
         int windowBackground = fromConfig.getWindowBackground();
         float backgroundDimAmount = fromConfig.getBackgroundDimAmount();
@@ -189,9 +188,6 @@ public class Loading2 {
 
         toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
 
-        if (backgroundColor !=-1) {
-            toConfig.setBackgroundColor(backgroundColor);
-        }
         if (backgroundDrawable != null) {
             toConfig.setBackgroundDrawable(backgroundDrawable);
         }

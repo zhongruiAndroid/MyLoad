@@ -18,9 +18,6 @@ public class LoadConfig {
     private boolean canceledOnTouchOutside;
 
 
-    /*dialog背景*/
-    @ColorInt
-    private int backgroundColor;
     /*dialog背景，windowBackgroundDrawable优先级大于background*/
     private Drawable backgroundDrawable;
 
@@ -48,7 +45,6 @@ public class LoadConfig {
         defaultDrawableMode= PorterDuff.Mode.SRC_ATOP;
 
 
-        backgroundColor =-1;
         windowBackground =-1;
 
         backgroundDimAmount = -1f;
@@ -56,7 +52,6 @@ public class LoadConfig {
     }
     public static LoadConfig defaultConfig(){
         LoadConfig loadConfig = new LoadConfig();
-        loadConfig.backgroundColor=Color.TRANSPARENT;
         loadConfig.windowBackground=Color.TRANSPARENT;
         loadConfig.backgroundDimAmount=0.3f;
         return loadConfig;
@@ -92,14 +87,6 @@ public class LoadConfig {
 
     public void setCanceledOnTouchOutside(boolean canceledOnTouchOutside) {
         this.canceledOnTouchOutside = canceledOnTouchOutside;
-    }
-
-    public int getBackgroundColor() {
-        return backgroundColor;
-    }
-
-    public void setBackgroundColor(@ColorInt int backgroundColor) {
-        this.backgroundColor = backgroundColor;
     }
 
     public Drawable getBackgroundDrawable() {
