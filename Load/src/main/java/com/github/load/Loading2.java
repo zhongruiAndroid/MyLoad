@@ -139,7 +139,8 @@ public class Loading2 {
         if(loadConfig==null){
             return this;
         }
-        copyConfigAttr(loadConfig, defaultLoadConfig);
+        defaultLoadConfig=loadConfig;
+//        copyConfigAttr(loadConfig, defaultLoadConfig);
         return this;
     }
 
