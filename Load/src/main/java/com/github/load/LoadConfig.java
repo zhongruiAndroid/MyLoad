@@ -7,9 +7,12 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StyleRes;
 import android.view.View;
+import android.view.WindowManager;
 
 public class LoadConfig {
     private View loadView;
+    private int viewWidth ;
+    private int viewHeight;
     @LayoutRes
     private int loadViewId;
     @StyleRes
@@ -17,13 +20,10 @@ public class LoadConfig {
 
     private boolean canceledOnTouchOutside;
 
-
-    /*dialog背景，windowBackgroundDrawable优先级大于background*/
-    private Drawable backgroundDrawable;
-
     /*window背景*/
     @ColorInt
     private int windowBackground;
+    private Drawable windowBackgroundDrawable;
 
     /*dialog底部透明度 0.0f ~ 1f*/
     private float backgroundDimAmount;
@@ -38,6 +38,9 @@ public class LoadConfig {
 
 
     public LoadConfig() {
+        viewWidth= WindowManager.LayoutParams.WRAP_CONTENT;
+        viewHeight= WindowManager.LayoutParams.WRAP_CONTENT;
+
         loadViewId=R.layout.loading_default;
         loadStyle=R.style.LoadStyle;
         canceledOnTouchOutside=false;
@@ -49,12 +52,29 @@ public class LoadConfig {
 
         backgroundDimAmount = -1f;
         defaultDrawableColor=-1;
+
     }
     public static LoadConfig defaultConfig(){
         LoadConfig loadConfig = new LoadConfig();
         loadConfig.windowBackground=Color.TRANSPARENT;
         loadConfig.backgroundDimAmount=0.3f;
         return loadConfig;
+    }
+
+    public int getViewWidth() {
+        return viewWidth;
+    }
+
+    public void setViewWidth(int viewWidth) {
+        this.viewWidth = viewWidth;
+    }
+
+    public int getViewHeight() {
+        return viewHeight;
+    }
+
+    public void setViewHeight(int viewHeight) {
+        this.viewHeight = viewHeight;
     }
 
     public View getLoadView() {
@@ -89,12 +109,12 @@ public class LoadConfig {
         this.canceledOnTouchOutside = canceledOnTouchOutside;
     }
 
-    public Drawable getBackgroundDrawable() {
-        return backgroundDrawable;
+    public Drawable getWindowBackgroundDrawable() {
+        return windowBackgroundDrawable;
     }
 
-    public void setBackgroundDrawable(Drawable backgroundDrawable) {
-        this.backgroundDrawable = backgroundDrawable;
+    public void setWindowBackgroundDrawable(Drawable windowBackgroundDrawable) {
+        this.windowBackgroundDrawable = windowBackgroundDrawable;
     }
 
     public int getWindowBackground() {

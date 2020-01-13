@@ -117,14 +117,14 @@ public class Loading2 {
         if (loadDialog == null) {
             return;
         }
+        LoadConfig currentConfig = getCurrentConfig();
         Window window = loadDialog.getWindow();
         WindowManager.LayoutParams params = window.getAttributes();
-        params.width = ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
+        params.width =currentConfig.getViewWidth();// ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
+        params.height =currentConfig.getViewHeight();
         params.gravity = Gravity.CENTER;
 
-
-        LoadConfig currentConfig = getCurrentConfig();
-        Drawable backgroundDrawable = currentConfig.getBackgroundDrawable();
+        Drawable backgroundDrawable = currentConfig.getWindowBackgroundDrawable();
 
         if (backgroundDrawable == null) {
             int color= Color.TRANSPARENT;
@@ -143,7 +143,6 @@ public class Loading2 {
         if(loadConfig==null){
             return this;
         }
-//        defaultLoadConfig=loadConfig;
         copyConfigAttr(loadConfig, defaultLoadConfig);
         return this;
     }
@@ -164,17 +163,23 @@ public class Loading2 {
         if (fromConfig == null || toConfig == null) {
             return;
         }
+        int viewWidth = fromConfig.getViewWidth();
+        int viewHeight = fromConfig.getViewHeight();
+
         View loadView = fromConfig.getLoadView();
         int loadViewId = fromConfig.getLoadViewId();
         int loadStyle = fromConfig.getLoadStyle();
         boolean canceledOnTouchOutside = fromConfig.isCanceledOnTouchOutside();
-        Drawable backgroundDrawable = fromConfig.getBackgroundDrawable();
+        Drawable backgroundDrawable = fromConfig.getWindowBackgroundDrawable();
         int windowBackground = fromConfig.getWindowBackground();
         float backgroundDimAmount = fromConfig.getBackgroundDimAmount();
         Drawable defaultDrawable = fromConfig.getDefaultDrawable();
         int defaultDrawableColor = fromConfig.getDefaultDrawableColor();
         PorterDuff.Mode defaultDrawableMode = fromConfig.getDefaultDrawableMode();
 
+
+        toConfig.setViewWidth(viewWidth);
+        toConfig.setViewHeight(viewHeight);
 
         if (loadView != null) {
             toConfig.setLoadView(loadView);
@@ -189,7 +194,7 @@ public class Loading2 {
         toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
 
         if (backgroundDrawable != null) {
-            toConfig.setBackgroundDrawable(backgroundDrawable);
+            toConfig.setWindowBackgroundDrawable(backgroundDrawable);
         }
         if (windowBackground !=-1) {
             toConfig.setWindowBackground(windowBackground);
@@ -284,7 +289,5 @@ public class Loading2 {
         if (styleId > 0) {
             config.setLoadStyle(styleId);
         }
-
     }
-
 }
