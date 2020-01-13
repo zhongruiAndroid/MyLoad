@@ -68,9 +68,9 @@ public class Loading extends Dialog {
         }
         context = ctx;
         if(loadView==noLoadView){
-            loading = new Loading(context, R.layout.loading_default, R.style.Theme_dialog);
+//            loading = new Loading(context, R.layout.loading_default, R.style.Theme_dialog);
         }else{
-            loading = new Loading(context,loadView, R.style.Theme_dialog);
+//            loading = new Loading(context,loadView, R.style.Theme_dialog);
         }
         loading.setOnDismissListener(new OnDismissListener() {
             @Override

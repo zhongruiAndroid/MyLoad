@@ -42,17 +42,24 @@ public class LoadConfig {
 
     public LoadConfig() {
         loadViewId=R.layout.loading_default;
-        loadStyle=R.style.Theme_dialog;
+        loadStyle=R.style.LoadStyle;
         canceledOnTouchOutside=false;
 
         defaultDrawableMode= PorterDuff.Mode.SRC_ATOP;
 
 
-        backgroundColor = Color.TRANSPARENT;
-        windowBackground = Color.TRANSPARENT;
+        backgroundColor =-1;
+        windowBackground =-1;
 
-        backgroundDimAmount = 0.3f;
+        backgroundDimAmount = -1f;
         defaultDrawableColor=-1;
+    }
+    public static LoadConfig defaultConfig(){
+        LoadConfig loadConfig = new LoadConfig();
+        loadConfig.backgroundColor=Color.TRANSPARENT;
+        loadConfig.windowBackground=Color.TRANSPARENT;
+        loadConfig.backgroundDimAmount=0.3f;
+        return loadConfig;
     }
 
     public View getLoadView() {

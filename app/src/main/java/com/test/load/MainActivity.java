@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.github.load.LoadConfig;
@@ -59,16 +60,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(cbAllSet.isChecked()){
+//                Loading2.setDefaultConfig(new LoadConfig());
+                if (cbAllSet.isChecked()) {
                     Loading2.setDefaultConfig(defaultConfig);
                 }
-                if(cbAreaSet.isChecked()){
-                    Loading2.setConfig(defaultConfig);
+                if (cbAreaSet.isChecked()) {
+                    Loading2.setConfig(loadConfig);
                 }
+
+
                 Loading2.show(activity);
             }
         });
     }
+
     ImageView iv;
 
     private void initView() {
@@ -87,14 +92,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cbAreaSet = findViewById(R.id.cbAreaSet);
 
 
-
         rgFirst.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId==R.id.rbFirst){
+                if (checkedId == R.id.rbFirst) {
                     RotateDrawable rotateDrawable = getRotateDrawable(false);
                     defaultConfig.setDefaultDrawable(rotateDrawable);
-                }else{
+                } else {
                     RotateDrawable rotateDrawable = getRotateDrawable(true);
                     defaultConfig.setDefaultDrawable(rotateDrawable);
                 }
@@ -104,24 +108,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rgFirst2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId==R.id.rbFirst2){
+                if (checkedId == R.id.rbFirst2) {
                     RotateDrawable rotateDrawable = getRotateDrawable(false);
                     loadConfig.setDefaultDrawable(rotateDrawable);
-                }else{
+                } else {
                     RotateDrawable rotateDrawable = getRotateDrawable(true);
                     loadConfig.setDefaultDrawable(rotateDrawable);
                 }
             }
         });
 
+        sbAlpha.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                defaultConfig.setBackgroundDimAmount(progress*1f/sbAlpha.getMax());
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+        sbAlpha2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loadConfig.setBackgroundDimAmount(progress*1f/sbAlpha2.getMax());
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+
+
     }
-    private RotateDrawable getRotateDrawable(boolean isFirstType){
+
+    private RotateDrawable getRotateDrawable(boolean isFirstType) {
         Drawable drawable = ContextCompat.getDrawable(this, R.drawable.rotate_loading);
-        if(isFirstType){
+        if (isFirstType) {
             drawable = ContextCompat.getDrawable(this, R.drawable.rotate_loading2);
         }
         return (RotateDrawable) drawable;
     }
+
     private void setViewListener() {
         tvLoadColor.setOnClickListener(this);
         tvLoadBgColor.setOnClickListener(this);

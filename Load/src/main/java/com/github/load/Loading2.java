@@ -3,6 +3,7 @@ package com.github.load;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -31,7 +32,7 @@ public class Loading2 {
     private boolean isNeedFinishAct;
 
     private Loading2() {
-        defaultLoadConfig = new LoadConfig();
+        defaultLoadConfig = LoadConfig.defaultConfig();
     }
 
     private static Loading2 get() {
@@ -121,17 +122,20 @@ public class Loading2 {
         params.width = ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
         params.gravity = Gravity.CENTER;
 
+
         LoadConfig currentConfig = getCurrentConfig();
         Drawable backgroundDrawable = currentConfig.getBackgroundDrawable();
 
         if (backgroundDrawable == null) {
-            window.setBackgroundDrawable(new ColorDrawable(currentConfig.getBackgroundColor()));
+            int color= Color.TRANSPARENT;
+            if(currentConfig.getWindowBackground()!=-1){
+                color=currentConfig.getWindowBackground();
+            }
+            window.setBackgroundDrawable(new ColorDrawable(color));
         } else {
-            window.setBackgroundDrawable(currentConfig.getBackgroundDrawable());
+            window.setBackgroundDrawable(backgroundDrawable);
         }
-
         window.setDimAmount(currentConfig.getBackgroundDimAmount());
-
         window.setAttributes(params);
     }
 
@@ -139,8 +143,8 @@ public class Loading2 {
         if(loadConfig==null){
             return this;
         }
-        defaultLoadConfig=loadConfig;
-//        copyConfigAttr(loadConfig, defaultLoadConfig);
+//        defaultLoadConfig=loadConfig;
+        copyConfigAttr(loadConfig, defaultLoadConfig);
         return this;
     }
 
@@ -194,7 +198,7 @@ public class Loading2 {
         if (windowBackground !=-1) {
             toConfig.setWindowBackground(windowBackground);
         }
-        if (backgroundDimAmount >= 0) {
+        if (backgroundDimAmount !=-1) {
             toConfig.setBackgroundDimAmount(backgroundDimAmount);
         }
         if (defaultDrawable != null) {
@@ -211,6 +215,9 @@ public class Loading2 {
     /*给默认的dialog设置属性*/
     public static Loading2 setDefaultConfig(LoadConfig loadConfig) {
         return get().setDefConfig(loadConfig);
+    }
+    public static Loading2 resetDefaultConfig() {
+        return get().setDefConfig(LoadConfig.defaultConfig());
     }
 
     /*给当前show的dialog设置属性*/
