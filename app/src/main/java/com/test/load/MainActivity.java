@@ -16,7 +16,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.github.load.LoadConfig;
-import com.github.load.Loading2;
+import com.github.load.Loading;
 import com.github.selectcolordialog.SelectColorDialog;
 import com.github.selectcolordialog.SelectColorListener;
 
@@ -62,20 +62,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Loading2.resetDefaultConfig();
+                Loading.resetDefaultConfig();
 
                 if (cbAllSet.isChecked()) {
-                    Loading2.setDefaultConfig(defaultConfig);
+                    Loading.setDefaultConfig(defaultConfig);
                 }
                 if (cbAreaSet.isChecked()) {
-                    Loading2.setConfig(loadConfig);
+                    Loading.setConfig(loadConfig);
                 }
                 if(cbAreaSet.isChecked()){
-                    Loading2.showForExit(activity,null,0,cbFinishExit2.isChecked());
+                    Loading.showForExit(activity,null,0,cbFinishExit2.isChecked());
                 }else if(cbAllSet.isChecked()){
-                    Loading2.showForExit(activity,null,0,cbFinishExit.isChecked());
+                    Loading.showForExit(activity,null,0,cbFinishExit.isChecked());
                 }else{
-                    Loading2.show(activity);
+                    Loading.show(activity);
                 }
             }
         });

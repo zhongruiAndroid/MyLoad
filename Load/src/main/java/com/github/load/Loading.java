@@ -1,144 +1,297 @@
 package com.github.load;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RotateDrawable;
-import android.os.Build;
-import android.support.annotation.LayoutRes;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.StyleRes;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 
 /**
- *  进入页面加载的Dialog
+ * 进入页面加载的Dialog
  */
-public class Loading extends Dialog {
-    private static final int TAG_SHOW=1;
-    private static final int TAG_DISMISS=0;
-    private static int showTag = TAG_DISMISS;
+public class Loading {
+    private static Loading singleObj;
 
-    private static Loading loading;
-    private static Context context;
+    private LoadDialog loadDialog;
 
-    private static boolean isNeedFinishAct;
 
-    private static int loadView=-1;
-    private static final int noLoadView=-1;
+    private LoadConfig config;
+    private LoadConfig defaultLoadConfig;
+    private Context mContext;
+    private boolean isNeedFinishAct;
 
-    public static void setLoadView(@LayoutRes int loadView) {
-        Loading.loadView = loadView;
+    private Loading() {
+        defaultLoadConfig = LoadConfig.defaultConfig();
     }
 
-    public Loading(Context context, int layout, int style) {
-        super(context, style);
-        View inflate = LayoutInflater.from(context).inflate(layout, null);
-        ProgressBar pb= inflate.findViewById(R.id.pb);
-        Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
-        if(indeterminateDrawable!=null){
-            indeterminateDrawable.mutate().setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);
+    private static Loading get() {
+        if (singleObj == null) {
+            synchronized (Loading.class) {
+                if (singleObj == null) {
+                    singleObj = new Loading();
+                }
+            }
         }
-        setContentView(inflate);
-        Window window = getWindow();
-        this.setCanceledOnTouchOutside(false);
+        return singleObj;
+    }
+
+    private LoadConfig getCurrentConfig() {
+        return config == null ? defaultLoadConfig : config;
+    }
+
+
+    private LoadDialog newDialog(Context context, boolean showNow) {
+        this.mContext = context;
+
+        View contentView = getCurrentConfig().getLoadView();
+        if (contentView == null) {
+            int viewLayoutId = getCurrentConfig().getLoadViewId();
+            contentView = LayoutInflater.from(context).inflate(viewLayoutId, null);
+        }
+        setDefaultViewStyle(contentView);
+        int styleId = getCurrentConfig().getLoadStyle();
+        if (styleId > 0) {
+            loadDialog = new LoadDialog(context, contentView, styleId);
+        } else {
+            loadDialog = new LoadDialog(context, contentView);
+        }
+        loadDialog.setCanceledOnTouchOutside(getCurrentConfig().isCanceledOnTouchOutside());
+        loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (loadDialog != null && isNeedFinishAct && mContext != null) {
+                    isNeedFinishAct = false;
+                    if (mContext instanceof Activity) {
+                        ((Activity) mContext).finish();
+                    }
+                }
+                config = null;
+                loadDialog = null;
+                mContext = null;
+            }
+        });
+
+        loadDialog.setContentView(contentView);
+        setDialogWindow(context, loadDialog);
+
+
+        if (showNow) {
+            loadDialog.show();
+        }
+
+        return loadDialog;
+    }
+
+    private void setDefaultViewStyle(View view) {
+        ProgressBar pb = view.findViewById(R.id.pb);
+        Drawable defaultDrawable = getCurrentConfig().getDefaultDrawable();
+        if (defaultDrawable != null) {
+            pb.setIndeterminateDrawable(defaultDrawable);
+        }
+        if (getCurrentConfig().getDefaultDrawableColor() != -1) {
+            Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
+            indeterminateDrawable.mutate().setColorFilter(getCurrentConfig().getDefaultDrawableColor(), getCurrentConfig().getDefaultDrawableMode());
+        }
+    }
+
+    private void setDialogWindow(Context context, LoadDialog loadDialog) {
+        if (loadDialog == null) {
+            return;
+        }
+        LoadConfig currentConfig = getCurrentConfig();
+        Window window = loadDialog.getWindow();
         WindowManager.LayoutParams params = window.getAttributes();
-        params.width = ((Activity) context).getWindowManager()
-                .getDefaultDisplay().getWidth() * 3 / 4;
+        params.width = currentConfig.getViewWidth();// ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
+        params.height = currentConfig.getViewHeight();
         params.gravity = Gravity.CENTER;
-        window.setBackgroundDrawable(new ColorDrawable(getContext().getResources().getColor(android.R.color.transparent)));
+
+        Drawable backgroundDrawable = currentConfig.getBackgroundDrawable();
+
+        if (backgroundDrawable == null) {
+            int color = Color.TRANSPARENT;
+            if (currentConfig.getBackgroundColor() != -1) {
+                color = currentConfig.getBackgroundColor();
+            }
+            window.setBackgroundDrawable(new ColorDrawable(color));
+        } else {
+            window.setBackgroundDrawable(backgroundDrawable);
+        }
+        window.setDimAmount(currentConfig.getBackgroundDimAmount());
+      /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//5.0 全透明实现
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        } else {//4.4 全透明状态栏
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }*/
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setAttributes(params);
     }
 
-    private static void setLoading(Context ctx) {
-        if(ctx==null){
+    private Loading setDefConfig(LoadConfig loadConfig) {
+        if (loadConfig == null) {
+            return this;
+        }
+        copyConfigAttr(loadConfig, defaultLoadConfig);
+        return this;
+    }
+
+    private Loading setLoadConfig(LoadConfig fromConfig) {
+        if (fromConfig == null) {
+            return this;
+        }
+        if (config == null) {
+            config = new LoadConfig();
+            copyConfigAttr(defaultLoadConfig, config);
+        }
+        copyConfigAttr(fromConfig, config);
+        return this;
+    }
+
+    private void copyConfigAttr(LoadConfig fromConfig, LoadConfig toConfig) {
+        if (fromConfig == null || toConfig == null) {
             return;
         }
-        context = ctx;
-        if(loadView==noLoadView){
-//            loading = new Loading(context, R.layout.loading_default, R.style.Theme_dialog);
-        }else{
-//            loading = new Loading(context,loadView, R.style.Theme_dialog);
+        int viewWidth = fromConfig.getViewWidth();
+        int viewHeight = fromConfig.getViewHeight();
+
+        View loadView = fromConfig.getLoadView();
+        int loadViewId = fromConfig.getLoadViewId();
+        int loadStyle = fromConfig.getLoadStyle();
+        boolean canceledOnTouchOutside = fromConfig.isCanceledOnTouchOutside();
+        Drawable backgroundDrawable = fromConfig.getBackgroundDrawable();
+        int windowBackground = fromConfig.getBackgroundColor();
+        float backgroundDimAmount = fromConfig.getBackgroundDimAmount();
+        Drawable defaultDrawable = fromConfig.getDefaultDrawable();
+        int defaultDrawableColor = fromConfig.getDefaultDrawableColor();
+        PorterDuff.Mode defaultDrawableMode = fromConfig.getDefaultDrawableMode();
+
+
+        toConfig.setViewWidth(viewWidth);
+        toConfig.setViewHeight(viewHeight);
+
+        if (loadView != null) {
+            toConfig.setLoadView(loadView);
         }
-        loading.setOnDismissListener(new OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                loading.showTag = 0;
-                isNeedFinishAct = false;
-            }
-        });
-    }
-    public  static void showForExit(Context ctx) {
-        if(ctx==null){
-            return;
+        if (loadViewId > 0) {
+            toConfig.setLoadViewId(loadViewId);
         }
-        showForExit(ctx,true);
-    }
-    public  static void showForExit(Context ctx,boolean dismissAndFinishActivity) {
-        if(ctx==null){
-            return;
+        if (loadStyle > 0) {
+            toConfig.setLoadStyle(loadStyle);
         }
-        if(loading==null||!loading.isShowing()){
-            isNeedFinishAct =dismissAndFinishActivity;
-            setLoading(ctx);
+
+        toConfig.setCanceledOnTouchOutside(canceledOnTouchOutside);
+
+        if (backgroundDrawable != null) {
+            toConfig.setBackgroundDrawable(backgroundDrawable);
         }
-        if (Loading.showTag == 0 && loading != null) {
-            Activity activity = (Activity) ctx;
-            if (activity != null && !activity.isFinishing()) {
-                Loading.showTag = 1;
-                loading.show();
-            } else {
-                loading.showTag = 0;
-            }
+        if (windowBackground != -1) {
+            toConfig.setBackgroundColor(windowBackground);
         }
-    }
-    public  static void show(Context ctx) {
-        if(ctx==null){
-            return;
+        if (backgroundDimAmount != -1) {
+            toConfig.setBackgroundDimAmount(backgroundDimAmount);
         }
-        if(loading==null||!loading.isShowing()){
-            setLoading(ctx);
+        if (defaultDrawable != null) {
+            toConfig.setDefaultDrawable(defaultDrawable);
         }
-        if (Loading.showTag == 0 && loading != null) {
-            Activity activity = (Activity) ctx;
-            if (activity != null && !activity.isFinishing()) {
-                Loading.showTag = 1;
-                loading.show();
-            } else {
-                loading.showTag = 0;
-            }
+        if (defaultDrawableColor != -1) {
+            toConfig.setDefaultDrawableColor(defaultDrawableColor);
+        }
+        if (defaultDrawableMode != null) {
+            toConfig.setDefaultDrawableMode(defaultDrawableMode);
         }
     }
-    public static void dismissLoading() {
-        if (loading != null &&loading.isShowing()) {
-            loading.showTag = 0;
-            loading.dismiss();
-            loading=null;
-            context = null;
-        }
+
+    /*给默认的dialog设置属性*/
+    public static Loading setDefaultConfig(LoadConfig loadConfig) {
+        return get().setDefConfig(loadConfig);
     }
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(isNeedFinishAct &&context!=null&&loading.isShowing()){
-            isNeedFinishAct =false;
-            loading.dismiss();
-            if(context instanceof Activity){
-                ((Activity)context).finish();
-            }
-            return true;
+
+    public static Loading resetDefaultConfig() {
+        return get().setDefConfig(LoadConfig.defaultConfig());
+    }
+
+    /*给当前show的dialog设置属性*/
+    public static Loading setConfig(LoadConfig loadConfig) {
+        return get().setLoadConfig(loadConfig);
+    }
+
+    public static void show(Activity activity) {
+        showForExit(activity, null, 0, false);
+    }
+
+    public static void show(Activity activity, View view) {
+        showForExit(activity, view, 0, false);
+    }
+
+    public static void show(Activity activity, @StyleRes int styleId) {
+        showForExit(activity, null, styleId, false);
+    }
+
+    public static void show(Activity activity, View view, @StyleRes int styleId) {
+        showForExit(activity, view, styleId, false);
+    }
+
+    public static void showForExit(Activity activity) {
+        showForExit(activity, null, 0, true);
+    }
+
+    public static void showForExit(Activity activity, View view) {
+        showForExit(activity, view, 0, true);
+    }
+
+    public static void showForExit(Activity activity, @StyleRes int styleId) {
+        showForExit(activity, null, styleId, true);
+    }
+
+    public static void showForExit(Activity activity, View view, @StyleRes int styleId, boolean dismissNeedFinishActivity) {
+        Loading.get().preShow(view, styleId, dismissNeedFinishActivity);
+        Loading.get().newDialog(activity, true);
+    }
+
+    public static void dismiss() {
+        Loading.get().dismissDialog();
+    }
+
+    private void dismissDialog() {
+        if (loadDialog != null && loadDialog.isShowing()) {
+            loadDialog.dismiss();
         }
-        return super.onKeyDown(keyCode, event);
+        config = null;
+        mContext = null;
+    }
+
+    public void showDialog(Activity activity) {
+        showDialog(activity, false);
+    }
+
+    public void showDialog(Activity activity, boolean dismissNeedFinishActivity) {
+        Loading.get().preShow(null, 0, dismissNeedFinishActivity);
+        Loading.get().newDialog(activity, false).show();
+    }
+
+    private void preShow(View view, int styleId, boolean dismissNeedFinishActivity) {
+        isNeedFinishAct = dismissNeedFinishActivity;
+        if (config == null) {
+            config = new LoadConfig();
+            copyConfigAttr(defaultLoadConfig, config);
+        }
+        if (view != null) {
+            config.setLoadView(view);
+        }
+        if (styleId > 0) {
+            config.setLoadStyle(styleId);
+        }
     }
 }
