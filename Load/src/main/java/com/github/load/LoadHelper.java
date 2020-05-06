@@ -5,33 +5,34 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 
-public class LoadHelper {
-    public static Activity findActivity(Context context){
-        if (context==null) {
+class LoadHelper {
+    public static Activity findActivity(Context context) {
+        if (context == null) {
             return null;
         } else {
             if (context instanceof Activity) {
-                return (Activity)context;
+                return (Activity) context;
             } else if (context instanceof ContextWrapper) {
-                ContextWrapper wrapper = (ContextWrapper)context;
+                ContextWrapper wrapper = (ContextWrapper) context;
                 return findActivity(wrapper.getBaseContext());
             } else {
                 return null;
             }
         }
     }
-    public static boolean actIsFinish(Context context){
+
+    public static boolean actIsFinish(Context context) {
         Activity activity = findActivity(context);
-        if(activity==null){
+        if (activity == null) {
             return true;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            if(activity.isDestroyed()){
+            if (activity.isDestroyed()) {
                 return true;
             }
         }
-        if(activity.isFinishing()){
-           return true;
+        if (activity.isFinishing()) {
+            return true;
         }
         return false;
     }
