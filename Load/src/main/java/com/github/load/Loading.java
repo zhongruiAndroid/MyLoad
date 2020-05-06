@@ -5,7 +5,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StyleRes;
 import android.view.Gravity;
@@ -13,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 
 /**
@@ -23,6 +27,7 @@ public class Loading {
     private boolean isExit;
     private int loadView = 0;
     private int loadViewStyle = 0;
+    private int loadViewColor = Color.TRANSPARENT;
     private final int useDefFlag = 0;
 
     /**********************************************************/
@@ -52,16 +57,20 @@ public class Loading {
         this.loadViewStyle = loadViewStyle;
     }
 
+    public void setLoadViewColor(int loadViewColor) {
+        this.loadViewColor = loadViewColor;
+    }
+
     private void setLoading(final Context context, View contentView, @StyleRes int styleId) {
         if (styleId == useDefFlag) {
             styleId = R.style.LoadStyle;
         }
         loadDialog = new Dialog(context, styleId);
         if (contentView == null) {
-            loadDialog.setContentView(R.layout.loading_default);
-        } else {
-            loadDialog.setContentView(contentView);
+            contentView = LayoutInflater.from(context).inflate(R.layout.loading_default, null);
         }
+        loadDialog.setContentView(contentView);
+        setProgressBarColor(contentView);
 
         Window window = loadDialog.getWindow();
         loadDialog.setCanceledOnTouchOutside(false);
@@ -84,6 +93,24 @@ public class Loading {
                 isExit = false;
             }
         });
+    }
+
+    private void setProgressBarColor(View view) {
+        if(loadViewColor==Color.TRANSPARENT){
+            return;
+        }
+        if(view==null){
+            return;
+        }
+        ProgressBar pb = view.findViewById(R.id.pb);
+        if(pb==null){
+            return;
+        }
+        Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
+        if(indeterminateDrawable==null){
+            return;
+        }
+        indeterminateDrawable.mutate().setColorFilter(loadViewColor, PorterDuff.Mode.SRC_ATOP);
     }
 
     public void showDialogForExit(Context ctx) {

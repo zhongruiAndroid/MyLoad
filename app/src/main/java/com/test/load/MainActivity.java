@@ -1,6 +1,7 @@
 package com.test.load;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
 import android.os.Bundle;
@@ -25,10 +26,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initView();
         setViewListener();
-
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Loading.get().setLoadViewColor(Color.BLUE);
                 Loading.show(activity);
             }
         });
