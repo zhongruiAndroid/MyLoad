@@ -1,6 +1,7 @@
 package com.github.load;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -22,7 +23,7 @@ import android.widget.ProgressBar;
 public class Loading {
     private static Loading singleObj;
 
-    private LoadDialog loadDialog;
+    private Dialog loadDialog;
 
 
     private LoadConfig config;
@@ -50,7 +51,7 @@ public class Loading {
     }
 
 
-    private LoadDialog newDialog(Context context, boolean showNow) {
+    private Dialog newDialog(Context context, boolean showNow) {
         this.mContext = context;
 
         View contentView = getCurrentConfig().getLoadView();
@@ -61,9 +62,9 @@ public class Loading {
         setDefaultViewStyle(contentView);
         int styleId = getCurrentConfig().getLoadStyle();
         if (styleId > 0) {
-            loadDialog = new LoadDialog(context, contentView, styleId);
+            loadDialog = new Dialog(context, styleId);
         } else {
-            loadDialog = new LoadDialog(context, contentView);
+            loadDialog = new Dialog(context);
         }
         loadDialog.setCanceledOnTouchOutside(getCurrentConfig().isCanceledOnTouchOutside());
         loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -82,13 +83,14 @@ public class Loading {
         });
 
         loadDialog.setContentView(contentView);
-        setDialogWindow(context, loadDialog);
+        setDialogWindow(loadDialog);
 
 
         if (showNow) {
-            loadDialog.show();
+            if(!LoadHelper.actIsFinish(context)){
+                loadDialog.show();
+            }
         }
-
         return loadDialog;
     }
 
@@ -104,7 +106,7 @@ public class Loading {
         }
     }
 
-    private void setDialogWindow(Context context, LoadDialog loadDialog) {
+    private void setDialogWindow(Dialog loadDialog) {
         if (loadDialog == null) {
             return;
         }
@@ -127,6 +129,7 @@ public class Loading {
             window.setBackgroundDrawable(backgroundDrawable);
         }
         window.setDimAmount(currentConfig.getBackgroundDimAmount());
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
       /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//5.0 全透明实现
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
@@ -278,7 +281,10 @@ public class Loading {
 
     public void showDialog(Activity activity, boolean dismissNeedFinishActivity) {
         Loading.get().preShow(null, 0, dismissNeedFinishActivity);
-        Loading.get().newDialog(activity, false).show();
+        Dialog dialog = Loading.get().newDialog(activity, false);
+        if(!LoadHelper.actIsFinish(activity)){
+            dialog.show();
+        }
     }
 
     private void preShow(View view, int styleId, boolean dismissNeedFinishActivity) {

@@ -80,9 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
-
     ImageView iv;
-
     private void initView() {
 
         btShow = findViewById(R.id.btShow);
