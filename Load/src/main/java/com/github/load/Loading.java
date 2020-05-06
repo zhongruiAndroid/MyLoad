@@ -8,9 +8,7 @@ import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StyleRes;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -20,24 +18,24 @@ import android.view.WindowManager;
 /**
  * 进入页面加载的Dialog
  */
-public class Loading2 {
+public class Loading {
     private Dialog loadDialog;
     private boolean isExit;
-    private int loadView =0;
-    private int loadViewStyle =0;
+    private int loadView = 0;
+    private int loadViewStyle = 0;
     private final int useDefFlag = 0;
 
     /**********************************************************/
-    private static Loading2 singleObj;
+    private static Loading singleObj;
 
-    private Loading2() {
+    private Loading() {
     }
 
-    public static Loading2 get() {
+    public static Loading get() {
         if (singleObj == null) {
-            synchronized (Loading2.class) {
+            synchronized (Loading.class) {
                 if (singleObj == null) {
-                    singleObj = new Loading2();
+                    singleObj = new Loading();
                 }
             }
         }
@@ -50,14 +48,18 @@ public class Loading2 {
         this.loadView = loadView;
     }
 
+    public void setLoadViewStyle(@StyleRes int loadViewStyle) {
+        this.loadViewStyle = loadViewStyle;
+    }
+
     private void setLoading(final Context context, View contentView, @StyleRes int styleId) {
-        if(styleId==useDefFlag){
-            styleId=R.style.LoadStyle;
+        if (styleId == useDefFlag) {
+            styleId = R.style.LoadStyle;
         }
         loadDialog = new Dialog(context, styleId);
-        if(contentView==null){
+        if (contentView == null) {
             loadDialog.setContentView(R.layout.loading_default);
-        }else{
+        } else {
             loadDialog.setContentView(contentView);
         }
 
@@ -69,13 +71,13 @@ public class Loading2 {
         params.gravity = Gravity.CENTER;
         window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
         window.setAttributes(params);
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                if (isExit && context != null ) {
+                if (isExit && context != null) {
                     Activity activity = LoadHelper.findActivity(context);
-                    if(activity!=null){
+                    if (activity != null) {
                         activity.finish();
                     }
                 }
@@ -84,42 +86,47 @@ public class Loading2 {
         });
     }
 
-    public void showForExit(Context ctx) {
-        show(ctx);
-        isExit=true;
+    public void showDialogForExit(Context ctx) {
+        showDialog(ctx);
+        isExit = true;
     }
-    public void showForExit(Context ctx, boolean exit) {
-        show(ctx);
-        isExit=exit;
+
+    public void showDialogForExit(Context ctx, boolean exit) {
+        showDialog(ctx);
+        isExit = exit;
     }
-    public void show(Context context) {
-        show(context,loadView,loadViewStyle);
+
+    public void showDialog(Context context) {
+        showDialog(context, loadView, loadViewStyle);
     }
-    public void show(Context context, @LayoutRes int layoutId, @StyleRes int styleId) {
-        if(context==null){
-            return;
-        }
-        if(layoutId==useDefFlag){
-            layoutId=R.layout.loading_default;
-        }
-        if(styleId==useDefFlag){
-            styleId=R.style.LoadStyle;
-        }
-        show(context, LayoutInflater.from(context).inflate(layoutId,null),styleId);
-    }
-    public void show(Context context, @StyleRes int styleId) {
-        show(context,null,styleId);
-    }
-    public void show(Context context, View layout, @StyleRes int styleId) {
+
+    public void showDialog(Context context, @LayoutRes int layoutId, @StyleRes int styleId) {
         if (context == null) {
             return;
         }
-        if(LoadHelper.actIsFinish(context)){
+        if (layoutId == useDefFlag) {
+            layoutId = R.layout.loading_default;
+        }
+        if (styleId == useDefFlag) {
+            styleId = R.style.LoadStyle;
+        }
+        showDialog(context, LayoutInflater.from(context).inflate(layoutId, null), styleId);
+    }
+
+    public void showDialog(Context context, @StyleRes int styleId) {
+        showDialog(context, null, styleId);
+    }
+
+    public void showDialog(Context context, View layout, @StyleRes int styleId) {
+        if (context == null) {
+            return;
+        }
+        if (LoadHelper.actIsFinish(context)) {
             return;
         }
 
         if (loadDialog == null || !loadDialog.isShowing()) {
-            setLoading(context,layout,styleId);
+            setLoading(context, layout, styleId);
         }
         if (loadDialog != null) {
             isExit = false;
@@ -132,13 +139,42 @@ public class Loading2 {
             return;
         }
         Context context = loadDialog.getContext();
-        if(LoadHelper.actIsFinish(context)){
-            loadDialog=null;
+        if (LoadHelper.actIsFinish(context)) {
+            loadDialog = null;
             return;
         }
         if (loadDialog.isShowing()) {
             loadDialog.dismiss();
             loadDialog = null;
         }
+    }
+
+    /************************************************************/
+    public static void show(Context context) {
+        get().showDialog(context);
+    }
+
+    public static void show(Context context, @LayoutRes int layoutId, @StyleRes int styleId) {
+        get().showDialog(context, layoutId, styleId);
+    }
+
+    public static void show(Context context, @StyleRes int styleId) {
+        get().showDialog(context, styleId);
+    }
+
+    public static void show(Context context, View layout, @StyleRes int styleId) {
+        get().showDialog(context, layout, styleId);
+    }
+
+    public static void showForExit(Context ctx) {
+        get().showDialogForExit(ctx);
+    }
+
+    public static void showForExit(Context ctx, boolean exit) {
+        get().showDialogForExit(ctx, exit);
+    }
+
+    public static void dismissLoad() {
+        get().dismissLoading();
     }
 }

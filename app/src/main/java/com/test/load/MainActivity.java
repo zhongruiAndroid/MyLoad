@@ -6,16 +6,11 @@ import android.graphics.drawable.RotateDrawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatSeekBar;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.view.Window;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
-import com.github.load.Loading2;
+import com.github.load.Loading;
 import com.github.selectcolordialog.SelectColorDialog;
 import com.github.selectcolordialog.SelectColorListener;
 
@@ -25,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         activity = this;
         setContentView(R.layout.activity_main);
         initView();
@@ -33,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Loading2.get().show(MainActivity.this);
+                Loading.show(activity);
             }
         });
     }
