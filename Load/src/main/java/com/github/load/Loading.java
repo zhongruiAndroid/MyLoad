@@ -6,9 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StyleRes;
 import android.view.Gravity;
@@ -16,26 +14,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
 
 
 /**
  * 进入页面加载的Dialog
  */
 public class Loading {
+    private final int useDefFlag = 0;
     private Dialog loadDialog;
     private boolean isExit;
     private int loadView = 0;
     private int loadViewStyle = 0;
     private int loadViewColor = Color.TRANSPARENT;
-    private final int useDefFlag = 0;
 
     /**********************************************************/
     private static Loading singleObj;
 
-    private Loading() {
+    public Loading() {
     }
-
     public static Loading get() {
         if (singleObj == null) {
             synchronized (Loading.class) {
@@ -63,14 +59,13 @@ public class Loading {
 
     private void setLoading(final Context context, View contentView, @StyleRes int styleId) {
         if (styleId == useDefFlag) {
-            styleId = R.style.LoadStyle;
+//            styleId = R.style.LoadStyle;
         }
         loadDialog = new Dialog(context, styleId);
         if (contentView == null) {
-            contentView = LayoutInflater.from(context).inflate(R.layout.loading_default, null);
+            contentView = new View(context);
         }
         loadDialog.setContentView(contentView);
-        setProgressBarColor(contentView);
 
         Window window = loadDialog.getWindow();
         loadDialog.setCanceledOnTouchOutside(false);
@@ -95,23 +90,7 @@ public class Loading {
         });
     }
 
-    private void setProgressBarColor(View view) {
-        if(loadViewColor==Color.TRANSPARENT){
-            return;
-        }
-        if(view==null){
-            return;
-        }
-        ProgressBar pb = view.findViewById(R.id.pb);
-        if(pb==null){
-            return;
-        }
-        Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
-        if(indeterminateDrawable==null){
-            return;
-        }
-        indeterminateDrawable.mutate().setColorFilter(loadViewColor, PorterDuff.Mode.SRC_ATOP);
-    }
+
 
     public void showDialogForExit(Context ctx) {
         showDialog(ctx);
@@ -131,13 +110,14 @@ public class Loading {
         if (context == null) {
             return;
         }
+        View view;
         if (layoutId == useDefFlag) {
-            layoutId = R.layout.loading_default;
+            view = new View(context);
+        }else{
+            view = LayoutInflater.from(context).inflate(layoutId, null);
         }
-        if (styleId == useDefFlag) {
-            styleId = R.style.LoadStyle;
-        }
-        showDialog(context, LayoutInflater.from(context).inflate(layoutId, null), styleId);
+
+        showDialog(context,view , styleId);
     }
 
     public void showDialog(Context context, @StyleRes int styleId) {

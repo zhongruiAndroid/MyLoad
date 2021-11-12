@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btShow = findViewById(R.id.btShow);
 
-
     }
 
     private RotateDrawable getRotateDrawable(boolean isFirstType) {
