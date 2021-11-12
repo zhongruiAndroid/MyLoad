@@ -26,13 +26,13 @@ class LoadHelper {
         if (activity == null) {
             return true;
         }
-        if (activity.isFinishing()) {
-            return true;
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             if (activity.isDestroyed()) {
                 return true;
             }
+        }
+        if (activity.isFinishing()) {
+            return true;
         }
         return false;
     }
