@@ -151,6 +151,17 @@ public class Loading {
             return;
         }
         if (loadDialog.isShowing()) {
+            Window window = loadDialog.getWindow();
+            if(window==null){
+                loadDialog = null;
+                isExit = false;
+                return;
+            }
+            if(window.getWindowManager()==null){
+                loadDialog = null;
+                isExit = false;
+                return;
+            }
             loadDialog.dismiss();
             loadDialog = null;
         }
