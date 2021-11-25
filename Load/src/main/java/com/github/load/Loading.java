@@ -29,7 +29,7 @@ public class Loading {
     private int loadViewColor = Color.TRANSPARENT;
     private float dimAmount = 0.3f;
     private float alpha = 1.0f;
-
+    private int animId=-1;
     /**********************************************************/
     private static Loading singleObj;
 
@@ -58,6 +58,9 @@ public class Loading {
     }
     public void setAlpha(@FloatRange(from = 0f, to = 1f) float alpha) {
         this.alpha = alpha;
+    }
+    public void setAnimId(@StyleRes int alpha) {
+        this.animId = alpha;
     }
 
     public void setLoadViewStyle(@StyleRes int loadViewStyle) {
@@ -88,6 +91,9 @@ public class Loading {
         params.dimAmount=this.dimAmount;
         window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
         window.setAttributes(params);
+        if(animId!=-1){
+            window.setWindowAnimations(animId);
+        }
 //        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
