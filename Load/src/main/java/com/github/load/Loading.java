@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.support.annotation.FloatRange;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StyleRes;
 import android.view.Gravity;
@@ -26,12 +27,15 @@ public class Loading {
     private int loadView = 0;
     private int loadViewStyle = 0;
     private int loadViewColor = Color.TRANSPARENT;
+    private float dimAmount = 0.3f;
+    private float alpha = 1.0f;
 
     /**********************************************************/
     private static Loading singleObj;
 
     public Loading() {
     }
+
     public static Loading get() {
         if (singleObj == null) {
             synchronized (Loading.class) {
@@ -47,6 +51,13 @@ public class Loading {
 
     public void setLoadView(@LayoutRes int loadView) {
         this.loadView = loadView;
+    }
+
+    public void setDimAmount(@FloatRange(from = 0f, to = 1f) float dimAmount) {
+        this.dimAmount=dimAmount;
+    }
+    public void setAlpha(@FloatRange(from = 0f, to = 1f) float alpha) {
+        this.alpha = alpha;
     }
 
     public void setLoadViewStyle(@StyleRes int loadViewStyle) {
@@ -73,6 +84,8 @@ public class Loading {
         params.width = ((Activity) context).getWindowManager()
                 .getDefaultDisplay().getWidth() * 3 / 4;
         params.gravity = Gravity.CENTER;
+        params.alpha=this.alpha;
+        params.dimAmount=this.dimAmount;
         window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
         window.setAttributes(params);
 //        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -91,7 +104,6 @@ public class Loading {
     }
 
 
-
     public void showDialogForExit(Context ctx) {
         showDialog(ctx);
         isExit = true;
@@ -106,18 +118,22 @@ public class Loading {
         showDialog(context, loadView, loadViewStyle);
     }
 
-    public void showDialog(Context context, @LayoutRes int layoutId, @StyleRes int styleId) {
-        if (context == null) {
+    public void showDialog(Context ctx, @LayoutRes int layoutId, @StyleRes int styleId) {
+        if (ctx == null) {
             return;
+        }
+        Context context = LoadHelper.findActivity(ctx);
+        if (context == null) {
+            context = ctx;
         }
         View view;
         if (layoutId == useDefFlag) {
             view = new View(context);
-        }else{
+        } else {
             view = LayoutInflater.from(context).inflate(layoutId, null);
         }
 
-        showDialog(context,view , styleId);
+        showDialog(context, view, styleId);
     }
 
     public void showDialog(Context context, @StyleRes int styleId) {
@@ -152,12 +168,12 @@ public class Loading {
         }
         if (loadDialog.isShowing()) {
             Window window = loadDialog.getWindow();
-            if(window==null){
+            if (window == null) {
                 loadDialog = null;
                 isExit = false;
                 return;
             }
-            if(window.getWindowManager()==null){
+            if (window.getWindowManager() == null) {
                 loadDialog = null;
                 isExit = false;
                 return;
