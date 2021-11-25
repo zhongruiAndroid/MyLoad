@@ -4,11 +4,13 @@ package com.github.load;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,17 +23,92 @@ import android.widget.ProgressBar;
  * 进入页面加载的Dialog
  */
 public class Loading {
+
+    /*loading全局配置*/
+    private static int _loadViewId = 0;
+    private static View _loadView = null;
+    private static int _loadViewStyle = 0;
+    private static int _loadDrawableColor = Color.TRANSPARENT;
+    private static float _dimAmount = 0.2f;
+    private static float _alpha = 1.0f;
+    private static int _animId = 0;
+
+    public static void setGlobalLoadView(int loadViewId) {
+        _loadViewId = loadViewId;
+        _loadView=null;
+        get().setLoadView(_loadViewId);
+    }
+
+    public static void setGlobalLoadView(View loadView) {
+        _loadView = loadView;
+        _loadViewId=0;
+        get().setLoadView(_loadView);
+    }
+
+    public static void setGlobalLoadViewStyle(int loadViewStyle) {
+        _loadViewStyle = loadViewStyle;
+        get().setLoadViewStyle(_loadViewStyle);
+    }
+
+    public static void setGlobalLoadDrawableColor(int loadDrawableColor) {
+        _loadDrawableColor = loadDrawableColor;
+        get().setLoadDrawableColor(_loadDrawableColor);
+    }
+
+    public static void setGlobalDimAmount(float dimAmount) {
+        if (dimAmount < 0 || dimAmount > 1) {
+            dimAmount = 0.2f;
+        }
+        _dimAmount = dimAmount;
+        get().setDimAmount(_dimAmount);
+    }
+
+    public static void setGlobalAlpha(float alpha) {
+        if (alpha < 0 || alpha > 1) {
+            alpha = 1;
+        }
+        _alpha = alpha;
+        get().setAlpha(_alpha);
+    }
+
+    public static void setGlobalAnimId(int animId) {
+        _animId = animId;
+        get().setAnimId(_animId);
+    }
+
+    public static void resetGlobalAttr() {
+        _loadViewId = 0;
+        _loadView = null;
+        _loadViewStyle = 0;
+        _loadDrawableColor = Color.TRANSPARENT;
+        _dimAmount = 0.2f;
+        _alpha = 1.0f;
+        _animId = 0;
+
+        get().setLoadView(_loadViewId);
+        get().setLoadView(_loadView);
+        get().setLoadViewStyle(_loadViewStyle);
+        get().setLoadDrawableColor(_loadDrawableColor);
+        get().setDimAmount(_dimAmount);
+        get().setAlpha(_alpha);
+        get().setAnimId(_animId);
+    }
+
+    /********************************************************************************/
+    private final int useDefFlag = 0;
     private Dialog loadDialog;
     private boolean isExit;
-    private int loadView = 0;
+    private int loadViewId = 0;
+    private View loadView = null;
     private int loadViewStyle = 0;
-    private int loadViewColor = Color.TRANSPARENT;
-    private final int useDefFlag = 0;
-
+    private int loadDrawableColor = Color.TRANSPARENT;
+    private float dimAmount = 0.2f;
+    private float alpha = 1.0f;
+    private int animId = 0;
     /**********************************************************/
     private static Loading singleObj;
 
-    private Loading() {
+    public Loading() {
     }
 
     public static Loading get() {
@@ -47,19 +124,43 @@ public class Loading {
 
     /**********************************************************/
 
-    public void setLoadView(  int loadView) {
-        this.loadView = loadView;
+    public void setLoadView(int loadViewId) {
+        this.loadViewId = loadViewId;
+        this.loadView = null;
     }
 
-    public void setLoadViewStyle(  int loadViewStyle) {
+    public void setLoadView(View loadView) {
+        this.loadView = loadView;
+        this.loadViewId = 0;
+    }
+
+    public void setLoadViewStyle(int loadViewStyle) {
         this.loadViewStyle = loadViewStyle;
     }
 
-    public void setLoadViewColor(int loadViewColor) {
-        this.loadViewColor = loadViewColor;
+    public void setDimAmount(float dimAmount) {
+        if (dimAmount < 0 || dimAmount > 1) {
+            dimAmount = 0.2f;
+        }
+        this.dimAmount = dimAmount;
     }
 
-    private void setLoading(final Context context, View contentView,  int styleId) {
+    public void setAlpha(float alpha) {
+        if (alpha < 0 || alpha > 1) {
+            alpha = 1;
+        }
+        this.alpha = alpha;
+    }
+
+    public void setAnimId(int alpha) {
+        this.animId = alpha;
+    }
+
+    public void setLoadDrawableColor(int loadDrawableColor) {
+        this.loadDrawableColor = loadDrawableColor;
+    }
+
+    private void setLoading(final Context context, View contentView, int styleId) {
         if (styleId == useDefFlag) {
             styleId = R.style.LoadStyle;
         }
@@ -73,17 +174,24 @@ public class Loading {
         Window window = loadDialog.getWindow();
         loadDialog.setCanceledOnTouchOutside(false);
         WindowManager.LayoutParams params = window.getAttributes();
-        params.width = ((Activity) context).getWindowManager()
-                .getDefaultDisplay().getWidth() * 3 / 4;
+//        params.width = ((Activity) context).getWindowManager().getDefaultDisplay().getWidth() * 3 / 4;
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
         params.gravity = Gravity.CENTER;
+        params.alpha = this.alpha;
+        params.dimAmount = this.dimAmount;
         window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
         window.setAttributes(params);
-//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        if (animId != useDefFlag) {
+            window.setWindowAnimations(animId);
+        }
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         loadDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
+                resetAttr();
                 if (isExit && context != null) {
-                    Activity activity = LoadHelper.findActivity(context);
+                    Activity activity = findActivity(context);
                     if (activity != null) {
                         activity.finish();
                     }
@@ -93,22 +201,33 @@ public class Loading {
         });
     }
 
+    /*复原属性，防止某个loading修改属性影响后续showLoad*/
+    private void resetAttr() {
+        loadViewId = _loadViewId;
+        loadView = _loadView;
+        loadViewStyle = _loadViewStyle;
+        loadDrawableColor = _loadDrawableColor;
+        dimAmount = _dimAmount;
+        alpha = _alpha;
+        animId = _animId;
+    }
+
     private void setProgressBarColor(View view) {
-        if(loadViewColor==Color.TRANSPARENT){
+        if (loadDrawableColor == Color.TRANSPARENT) {
             return;
         }
-        if(view==null){
+        if (view == null) {
             return;
         }
         ProgressBar pb = view.findViewById(R.id.pb);
-        if(pb==null){
+        if (pb == null) {
             return;
         }
         Drawable indeterminateDrawable = pb.getIndeterminateDrawable();
-        if(indeterminateDrawable==null){
+        if (indeterminateDrawable == null) {
             return;
         }
-        indeterminateDrawable.mutate().setColorFilter(loadViewColor, PorterDuff.Mode.SRC_ATOP);
+        indeterminateDrawable.mutate().setColorFilter(loadDrawableColor, PorterDuff.Mode.SRC_ATOP);
     }
 
     public void showDialogForExit(Context ctx) {
@@ -122,10 +241,14 @@ public class Loading {
     }
 
     public void showDialog(Context context) {
-        showDialog(context, loadView, loadViewStyle);
+        if (loadViewId != useDefFlag) {
+            showDialog(context, loadViewId, loadViewStyle);
+        } else {
+            showDialog(context, loadView, loadViewStyle);
+        }
     }
 
-    public void showDialog(Context context,   int layoutId,   int styleId) {
+    public void showDialog(Context context, int layoutId, int styleId) {
         if (context == null) {
             return;
         }
@@ -138,15 +261,15 @@ public class Loading {
         showDialog(context, LayoutInflater.from(context).inflate(layoutId, null), styleId);
     }
 
-    public void showDialog(Context context,   int styleId) {
+    public void showDialog(Context context, int styleId) {
         showDialog(context, null, styleId);
     }
 
-    public void showDialog(Context context, View layout,   int styleId) {
+    public void showDialog(Context context, View layout, int styleId) {
         if (context == null) {
             return;
         }
-        if (LoadHelper.actIsFinish(context)) {
+        if (actIsFinish(context)) {
             return;
         }
 
@@ -164,18 +287,18 @@ public class Loading {
             return;
         }
         Context context = loadDialog.getContext();
-        if (LoadHelper.actIsFinish(context)) {
+        if (actIsFinish(context)) {
             loadDialog = null;
             return;
         }
         if (loadDialog.isShowing()) {
             Window window = loadDialog.getWindow();
-            if(window==null){
+            if (window == null) {
                 loadDialog = null;
                 isExit = false;
                 return;
             }
-            if(window.getWindowManager()==null){
+            if (window.getWindowManager() == null) {
                 loadDialog = null;
                 isExit = false;
                 return;
@@ -190,15 +313,15 @@ public class Loading {
         get().showDialog(context);
     }
 
-    public static void show(Context context,   int layoutId,  int styleId) {
+    public static void show(Context context, int layoutId, int styleId) {
         get().showDialog(context, layoutId, styleId);
     }
 
-    public static void show(Context context,  int styleId) {
+    public static void show(Context context, int styleId) {
         get().showDialog(context, styleId);
     }
 
-    public static void show(Context context, View layout,  int styleId) {
+    public static void show(Context context, View layout, int styleId) {
         get().showDialog(context, layout, styleId);
     }
 
@@ -212,5 +335,36 @@ public class Loading {
 
     public static void dismissLoad() {
         get().dismissLoading();
+    }
+
+    public static Activity findActivity(Context context) {
+        if (context == null) {
+            return null;
+        } else {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            } else if (context instanceof ContextWrapper) {
+                ContextWrapper wrapper = (ContextWrapper) context;
+                return findActivity(wrapper.getBaseContext());
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public static boolean actIsFinish(Context context) {
+        Activity activity = findActivity(context);
+        if (activity == null) {
+            return true;
+        }
+        if (activity.isFinishing()) {
+            return true;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (activity.isDestroyed()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
