@@ -9,8 +9,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.StyleRes;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,11 +47,11 @@ public class Loading {
 
     /**********************************************************/
 
-    public void setLoadView(@LayoutRes int loadView) {
+    public void setLoadView(  int loadView) {
         this.loadView = loadView;
     }
 
-    public void setLoadViewStyle(@StyleRes int loadViewStyle) {
+    public void setLoadViewStyle(  int loadViewStyle) {
         this.loadViewStyle = loadViewStyle;
     }
 
@@ -61,7 +59,7 @@ public class Loading {
         this.loadViewColor = loadViewColor;
     }
 
-    private void setLoading(final Context context, View contentView, @StyleRes int styleId) {
+    private void setLoading(final Context context, View contentView,  int styleId) {
         if (styleId == useDefFlag) {
             styleId = R.style.LoadStyle;
         }
@@ -127,7 +125,7 @@ public class Loading {
         showDialog(context, loadView, loadViewStyle);
     }
 
-    public void showDialog(Context context, @LayoutRes int layoutId, @StyleRes int styleId) {
+    public void showDialog(Context context,   int layoutId,   int styleId) {
         if (context == null) {
             return;
         }
@@ -140,11 +138,11 @@ public class Loading {
         showDialog(context, LayoutInflater.from(context).inflate(layoutId, null), styleId);
     }
 
-    public void showDialog(Context context, @StyleRes int styleId) {
+    public void showDialog(Context context,   int styleId) {
         showDialog(context, null, styleId);
     }
 
-    public void showDialog(Context context, View layout, @StyleRes int styleId) {
+    public void showDialog(Context context, View layout,   int styleId) {
         if (context == null) {
             return;
         }
@@ -192,15 +190,15 @@ public class Loading {
         get().showDialog(context);
     }
 
-    public static void show(Context context, @LayoutRes int layoutId, @StyleRes int styleId) {
+    public static void show(Context context,   int layoutId,  int styleId) {
         get().showDialog(context, layoutId, styleId);
     }
 
-    public static void show(Context context, @StyleRes int styleId) {
+    public static void show(Context context,  int styleId) {
         get().showDialog(context, styleId);
     }
 
-    public static void show(Context context, View layout, @StyleRes int styleId) {
+    public static void show(Context context, View layout,  int styleId) {
         get().showDialog(context, layout, styleId);
     }
 
