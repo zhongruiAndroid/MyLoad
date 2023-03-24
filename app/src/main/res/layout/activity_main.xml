@@ -228,12 +228,13 @@
                 android:inputType="numberDecimal"
                 android:textSize="13sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center_vertical"
-            >
+            android:orientation="vertical">
+
             <Button
                 android:id="@+id/btSetGlobalAttr"
                 android:layout_width="match_parent"
@@ -241,6 +242,7 @@
                 android:gravity="center"
                 android:text="设置全局配置"
                 android:textAllCaps="false" />
+
             <Button
                 android:id="@+id/btResetGlobalAttr"
                 android:layout_width="match_parent"
@@ -249,6 +251,7 @@
                 android:text="还原全局配置"
                 android:textAllCaps="false" />
         </LinearLayout>
+
         <Button
             android:id="@+id/btShow"
             android:layout_width="match_parent"
@@ -257,5 +260,18 @@
             android:text="show"
             android:textAllCaps="false" />
 
+        <Button
+            android:id="@+id/btTestLoadingAndJump"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="showLoading并且跳转"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btShow2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="show2次Loading"
+            android:textAllCaps="false" />
     </LinearLayout>
 </FrameLayout>

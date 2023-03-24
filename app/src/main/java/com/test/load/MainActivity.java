@@ -1,6 +1,7 @@
 package com.test.load;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
@@ -34,9 +35,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(bind.getRoot());
         initView();
         setViewListener();
+        bind.btTestLoadingAndJump.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Loading.show(activity);
+                startActivity(new Intent(activity,MainActivity2.class));
+            }
+        });
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Loading.get().resetAttr();
                 if(bind.rbCustomAttrId.isChecked()){
                     if(bind.rbViewId.isChecked()){
                         Loading.get().setLoadView(R.layout.loading_test);
@@ -70,6 +79,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 Loading.resetGlobalAttr();
+            }
+        });
+        bind.btShow2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Loading.show(activity);
+                Loading.show(activity);
             }
         });
         bind.btSetGlobalAttr.setOnClickListener(new View.OnClickListener() {

@@ -196,13 +196,14 @@ public class Loading {
                         activity.finish();
                     }
                 }
+                loadDialog = null;
                 isExit = false;
             }
         });
     }
 
     /*复原属性，防止某个loading修改属性影响后续showLoad*/
-    private void resetAttr() {
+    public void resetAttr() {
         loadViewId = _loadViewId;
         loadView = _loadView;
         loadViewStyle = _loadViewStyle;
@@ -273,8 +274,18 @@ public class Loading {
             return;
         }
 
-        if (loadDialog == null || !loadDialog.isShowing()) {
+        if (loadDialog == null ) {
             setLoading(context, layout, styleId);
+        } else if(loadDialog.isShowing()){
+            /*如果A页面显示loading，然后跳转到B页面，这个时候B页面显示loading，则把之前显示的loading取消*/
+            Activity activity = findActivity(loadDialog.getContext());
+            if(activity==findActivity(context)){
+                /*如果是同一个页面，则忽略*/
+                return;
+            }else{
+                dismissLoading();
+                setLoading(context, layout, styleId);
+            }
         }
         if (loadDialog != null) {
             isExit = false;
