@@ -21,6 +21,13 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(View view) {
                 Loading.get().setLoadDrawableColor(Color.YELLOW);
                 Loading.show(MainActivity2.this);
+
+                finish();
+//                btShow.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                    }
+//                },1000);
             }
         });
     }

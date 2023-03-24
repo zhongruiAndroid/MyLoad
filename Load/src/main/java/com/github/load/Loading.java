@@ -18,6 +18,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+
 
 /**
  * 进入页面加载的Dialog
@@ -35,13 +41,13 @@ public class Loading {
 
     public static void setGlobalLoadView(int loadViewId) {
         _loadViewId = loadViewId;
-        _loadView=null;
+        _loadView = null;
         get().setLoadView(_loadViewId);
     }
 
     public static void setGlobalLoadView(View loadView) {
         _loadView = loadView;
-        _loadViewId=0;
+        _loadViewId = 0;
         get().setLoadView(_loadView);
     }
 
@@ -274,22 +280,51 @@ public class Loading {
             return;
         }
 
-        if (loadDialog == null ) {
+        if (loadDialog == null) {
             setLoading(context, layout, styleId);
-        } else if(loadDialog.isShowing()){
+        } else if (loadDialog.isShowing()) {
             /*如果A页面显示loading，然后跳转到B页面，这个时候B页面显示loading，则把之前显示的loading取消*/
             Activity activity = findActivity(loadDialog.getContext());
-            if(activity==findActivity(context)){
+            if (activity == findActivity(context)) {
                 /*如果是同一个页面，则忽略*/
                 return;
-            }else{
+            } else {
+                /*这里先取消setOnDismissListener，否则第二个dialog显示的时候可能会触发第一个的Dismiss监听，导致第二个dialog赋值为空*/
+                loadDialog.setOnDismissListener(null);
                 dismissLoading();
                 setLoading(context, layout, styleId);
             }
         }
         if (loadDialog != null) {
+            addLifecycle();
             isExit = false;
             loadDialog.show();
+        }
+    }
+
+    private LifecycleEventObserver observer = new LifecycleEventObserver() {
+        @Override
+        public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                source.getLifecycle().removeObserver(observer);
+                if (loadDialog != null) {
+                    resetAttr();
+                    isExit = false;
+                    loadDialog.dismiss();
+                }
+            }
+        }
+    };
+
+    private void addLifecycle() {
+        if (loadDialog == null) {
+            return;
+        }
+        Activity activity = findActivity(loadDialog.getContext());
+        if (activity instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity) activity;
+            fragmentActivity.getLifecycle().removeObserver(observer);
+            fragmentActivity.getLifecycle().addObserver(observer);
         }
     }
 
