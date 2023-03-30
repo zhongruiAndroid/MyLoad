@@ -6,7 +6,10 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -39,35 +42,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 Loading.show(activity);
-                startActivity(new Intent(activity,MainActivity2.class));
+                startActivity(new Intent(activity, MainActivity2.class));
             }
         });
         btShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Loading.get().resetAttr();
-                if(bind.rbCustomAttrId.isChecked()){
-                    if(bind.rbViewId.isChecked()){
+                if (bind.rbCustomAttrId.isChecked()) {
+                    if (bind.rbViewId.isChecked()) {
                         Loading.get().setLoadView(R.layout.loading_test);
-                    }else if(bind.rbView.isChecked()){
+                    } else if (bind.rbView.isChecked()) {
                         Loading.get().setLoadView(getTestLoadView());
                     }
 
-                    if(bind.rbLoadViewStyle.isChecked()){
+                    if (bind.rbLoadViewStyle.isChecked()) {
                         Loading.get().setLoadViewStyle(R.style.LoadStyleTest);
                     }
-                    if(bind.rbLoadDrawableColor.isChecked()){
+                    if (bind.rbLoadDrawableColor.isChecked()) {
                         Loading.get().setLoadDrawableColor(Color.BLUE);
                     }
-                    if(bind.rbAnimId.isChecked()){
+                    if (bind.rbAnimId.isChecked()) {
                         Loading.get().setAnimId(R.style.TestDialogAnim);
                     }
-                    String dim=bind.etDimAmount.getText().toString();
-                    String alpha=bind.etAlpha.getText().toString();
-                    if(!TextUtils.isEmpty(dim)){
+                    String dim = bind.etDimAmount.getText().toString();
+                    String alpha = bind.etAlpha.getText().toString();
+                    if (!TextUtils.isEmpty(dim)) {
                         Loading.get().setDimAmount(Float.parseFloat(dim));
                     }
-                    if(!TextUtils.isEmpty(alpha)){
+                    if (!TextUtils.isEmpty(alpha)) {
                         Loading.get().setAlpha(Float.parseFloat(alpha));
                     }
                 }
@@ -93,29 +96,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 bind.rbGlobalAttrId.setChecked(true);
                 Loading.resetGlobalAttr();
-                if(bind.rbViewId.isChecked()){
+                if (bind.rbViewId.isChecked()) {
                     Loading.setGlobalLoadView(R.layout.loading_test);
-                }else if(bind.rbView.isChecked()){
+                } else if (bind.rbView.isChecked()) {
                     Loading.setGlobalLoadView(getTestLoadView());
                 }
 
-                if(bind.rbLoadViewStyle.isChecked()){
+                if (bind.rbLoadViewStyle.isChecked()) {
                     Loading.setGlobalLoadViewStyle(R.style.LoadStyleTest);
                 }
-                if(bind.rbLoadDrawableColor.isChecked()){
+                if (bind.rbLoadDrawableColor.isChecked()) {
                     Loading.setGlobalLoadDrawableColor(Color.RED);
                 }
-                if(bind.rbAnimId.isChecked()){
+                if (bind.rbAnimId.isChecked()) {
                     Loading.setGlobalAnimId(R.style.TestDialogAnim);
                 }
-                String dim=bind.etDimAmount.getText().toString();
-                String alpha=bind.etAlpha.getText().toString();
-                if(!TextUtils.isEmpty(dim)){
+                String dim = bind.etDimAmount.getText().toString();
+                String alpha = bind.etAlpha.getText().toString();
+                if (!TextUtils.isEmpty(dim)) {
                     Loading.setGlobalDimAmount(Float.parseFloat(dim));
                 }
-                if(!TextUtils.isEmpty(alpha)){
+                if (!TextUtils.isEmpty(alpha)) {
                     Loading.setGlobalAlpha(Float.parseFloat(alpha));
                 }
+            }
+        });
+
+        bind.btShowIo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("=====", "=btShowIo====" + (Looper.myLooper() == Looper.getMainLooper()));
+                        Loading.show(MainActivity.this);
+                        SystemClock.sleep(2000);
+                        Loading.dismissLoad();
+                    }
+                }).start();
+            }
+        });
+        bind.btDismissIo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("=====", "=btDismissIo=show====" + (Looper.myLooper() == Looper.getMainLooper()));
+                Loading.show(MainActivity.this);
+                bind.rbCustomAttrId.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.i("=====", "=btDismissIo=dismiss===" + (Looper.myLooper() == Looper.getMainLooper()));
+                                Loading.dismissLoad();
+                            }
+                        }).start();
+                    }
+                },2000);
+
             }
         });
     }
@@ -128,11 +166,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     }
-    private View getTestLoadView(){
+
+    private View getTestLoadView() {
         TextView textView = new TextView(this);
         textView.setText("loading");
         return textView;
     }
+
     private RotateDrawable getRotateDrawable(boolean isFirstType) {
         Drawable drawable = ContextCompat.getDrawable(this, R.drawable.rotate_loading);
         if (isFirstType) {

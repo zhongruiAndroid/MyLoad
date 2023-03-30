@@ -11,6 +11,8 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +31,13 @@ import androidx.lifecycle.LifecycleOwner;
  * 进入页面加载的Dialog
  */
 public class Loading {
+    private static Handler handler;
+    public static Handler getHandler() {
+        if(handler==null){
+            handler=new Handler(Looper.getMainLooper());
+        }
+        return handler;
+    }
 
     /*loading全局配置*/
     private static int _loadViewId = 0;
@@ -280,6 +289,18 @@ public class Loading {
             return;
         }
 
+        if(Looper.getMainLooper()==Looper.myLooper()){
+            showOnUi(context,layout,styleId);
+        }else{
+            getHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    showOnUi(context,layout,styleId);
+                }
+            });
+        }
+    }
+    private void showOnUi(Context context, View layout, int styleId) {
         if (loadDialog == null) {
             setLoading(context, layout, styleId);
         } else if (loadDialog.isShowing()) {
@@ -301,7 +322,6 @@ public class Loading {
             loadDialog.show();
         }
     }
-
     private LifecycleEventObserver observer = new LifecycleEventObserver() {
         @Override
         public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
@@ -337,6 +357,18 @@ public class Loading {
             loadDialog = null;
             return;
         }
+        if(Looper.getMainLooper()==Looper.myLooper()){
+            dismissLoadingOnUi();
+        }else{
+            getHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    dismissLoadingOnUi();
+                }
+            });
+        }
+    }
+    private void dismissLoadingOnUi(){
         if (loadDialog.isShowing()) {
             Window window = loadDialog.getWindow();
             if (window == null) {
@@ -353,7 +385,6 @@ public class Loading {
             loadDialog = null;
         }
     }
-
     /************************************************************/
     public static void show(Context context) {
         get().showDialog(context);

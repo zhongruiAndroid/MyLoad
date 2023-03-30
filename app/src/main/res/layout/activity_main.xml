@@ -273,5 +273,17 @@
             android:layout_height="wrap_content"
             android:text="show2次Loading"
             android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btShowIo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="子线程show"
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btDismissIo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="子线程Dismiss"
+            android:textAllCaps="false" />
     </LinearLayout>
 </FrameLayout>
